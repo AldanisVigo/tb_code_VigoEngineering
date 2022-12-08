@@ -36,11 +36,12 @@ func ping(e event.Event) uint32 {
 
 	//Otherwise write the keys to the page cuz why not?
 	// h.Write([]byte(strings.Join(keys, ",")))
-	// data, err := db.Get("value/hello")
-	// if err != nil {
-	// 	return 1
-	// }
+	data, err := db.Get("value/hello")
+	if err != nil {
+		return 1
+	}
 
+	h.Write(data)
 	// if string(data) != "Hello, world" {
 	// 	return 1
 	// }
@@ -51,11 +52,11 @@ func ping(e event.Event) uint32 {
 	// }
 
 
-	data, err := db.Get("value/hello")
-	if err == nil {
-		return 1
-	}
-	h.Write([]byte(data))
+	// data, err := db.Get("value/hello")
+	// if err == nil {
+	// 	return 1
+	// }
+	// h.Write([]byte(data))
 	// err = db.Close()
 	// if err != nil {
 	// 	return 1
