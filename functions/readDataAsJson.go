@@ -3,7 +3,6 @@ package lib
 //Import the necessary libraries
 import (
 	"encoding/json"
-
 	"bitbucket.org/taubyte/go-sdk/database"
 	"bitbucket.org/taubyte/go-sdk/event"
 )
