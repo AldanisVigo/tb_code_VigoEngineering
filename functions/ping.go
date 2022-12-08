@@ -1,8 +1,6 @@
 package lib
 
 import (
-	"strings"
-
 	"bitbucket.org/taubyte/go-sdk/database"
 	"bitbucket.org/taubyte/go-sdk/event"
 )
@@ -37,7 +35,7 @@ func ping(e event.Event) uint32 {
 	}
 
 	//Otherwise write the keys to the page cuz why not?
-	h.Write([]byte(strings.Join(keys, ",")))
+	// h.Write([]byte(strings.Join(keys, ",")))
 	// data, err := db.Get("value/hello")
 	// if err != nil {
 	// 	return 1
