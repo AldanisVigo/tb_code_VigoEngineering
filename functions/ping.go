@@ -7,8 +7,7 @@ import (
 
 //export ping
 func ping(e event.Event) uint32 {
-	db, err := database.New("testdb")
-	
+	data, err := database.Database(5).Get("value/hello")
 	if err != nil {
 		return 1
 	}
@@ -23,10 +22,10 @@ func ping(e event.Event) uint32 {
 	// 	return 1
 	// }
 
-	keys, err := db.List("value")
-	if len(keys) != 2 || err != nil {
-		return 1
-	}
+	// keys, err := db.List("value")
+	// if len(keys) != 2 || err != nil {
+	// 	return 1
+	// }
 
 	//Get HTTP from the event
 	h, err := e.HTTP()
@@ -36,10 +35,10 @@ func ping(e event.Event) uint32 {
 
 	//Otherwise write the keys to the page cuz why not?
 	// h.Write([]byte(strings.Join(keys, ",")))
-	data, err := db.Get("value/hello")
-	if err != nil {
-		return 1
-	}
+	// data, err := db.Get("value/hello")
+	// if err != nil {
+	// 	return 1
+	// }
 
 	h.Write(data)
 	// if string(data) != "Hello, world" {
