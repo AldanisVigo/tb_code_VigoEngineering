@@ -5,9 +5,8 @@ import (
 	"bitbucket.org/taubyte/go-sdk/event"
 )
 var (
-	testId   = uint32(5)
-	testName = "someDatabase"
-	testData = map[string][]byte{}
+	// testId   = uint32(5)
+	// testData = map[string][]byte{}
 )
 //export ping
 func ping(e event.Event) uint32 {
@@ -19,7 +18,7 @@ func ping(e event.Event) uint32 {
 	// h.Write([]byte("PONG"))
 
 	// return 0
-	db, err := database.New(testName)
+	db, err := database.New("testdb")
 	if err != nil {
 		return 1
 	}
