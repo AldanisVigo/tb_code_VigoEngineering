@@ -8,49 +8,49 @@ import (
 
 //export
 func readDataAsJson(e event.Event) uint32 {
-	//Get the database reference
-	db, err := database.New("testdb")
-	if err != nil {
-		println(err)
-		return 1
-	}
-	println(db)
-
-	// err = db.Put("value/hello", []byte("Hello, world"))
+	// //Get the database reference
+	// db, err := database.New("testdb")
 	// if err != nil {
 	// 	println(err)
 	// 	return 1
 	// }
+	// println(db)
 
-	//Get the data from the database
-	data,err := db.Get("value/hello")
-	if err != nil {
-		println(err)
-		return 1
-	}
-	println(data)
+	// // err = db.Put("value/hello", []byte("Hello, world"))
+	// // if err != nil {
+	// // 	println(err)
+	// // 	return 1
+	// // }
 
-	//Get HTTP from the event
+	// //Get the data from the database
+	// data,err := db.Get("value/hello")
+	// if err != nil {
+	// 	println(err)
+	// 	return 1
+	// }
+	// println(data)
+
+	// //Get HTTP from the event
 	h, err := e.HTTP()
 	if err != nil { //If we get an err 
 		return 1 //roll out
 	}
-	println(h)
+	// println(h)
 
-	//Generate a json response	
-	// jsonData, err := json.MarshalIndent(data, "", "  ")
-	// if err != nil {
-	// 	return 1
-	// }
+	// //Generate a json response	
+	// // jsonData, err := json.MarshalIndent(data, "", "  ")
+	// // if err != nil {
+	// // 	return 1
+	// // }
 
 	//Send the data back to the browser
-	w,err := h.Write(data)
+	w,err := h.Write("Hello I Work Again")
 	if err != nil {
 		println(err)
 		return 1
 	}
 
-	println(w)
+	// println(w)
 
 	//Return 0 cuz IDK, just do it
 	return 0
