@@ -7,7 +7,7 @@ import (
 )
 
 //export
-func readDataAsJson(e event.Event) uint32 {
+func rd(e event.Event) uint32 {
 	//Get the database reference
 	db, err := database.New("testdb")
 	if err != nil {
