@@ -44,11 +44,7 @@ func readDataAsJson(e event.Event) uint32 {
 	// // }
 
 	//Send the data back to the browser
-	w,err := h.Write([]byte("Hello I Work Again"))
-	if err != nil {
-		println(err)
-		return 1
-	}
+	h.Write([]byte("Hello I Work Again"))
 
 	// println(w)
 
