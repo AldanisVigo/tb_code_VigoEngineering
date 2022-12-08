@@ -4,7 +4,7 @@ import (
 	"bitbucket.org/taubyte/go-sdk/event"
 )
 
-//export ping
+//export wok
 func wok(e event.Event) uint32 {
   h, err := e.HTTP()
   if err != nil {
