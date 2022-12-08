@@ -1,11 +1,15 @@
 package lib
 
 import (
-	"encoding/json"
-
 	"bitbucket.org/taubyte/go-sdk/database"
 	"bitbucket.org/taubyte/go-sdk/event"
 )
+
+type User struct {
+    Name  string
+	Last string
+	Age int32
+}
 
 //export wok
 func wok(e event.Event) uint32 {
@@ -24,12 +28,7 @@ func wok(e event.Event) uint32 {
 		return 1
 	}
 
-	j,err := json.MarshalIndent(data,""," ")
-	if err != nil{
-		return 1
-	}
-
- 	h.Write([]byte(j))
+ 	h.Write([]byte(data))
   
   	return 0
 }
