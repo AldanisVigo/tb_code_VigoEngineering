@@ -29,39 +29,39 @@ func ping(e event.Event) uint32 {
 		return 1
 	}
 
-	err = db.Put("value/hello2", []byte("Hello, world"))
-	if err != nil {
-		return 1
-	}
+	// err = db.Put("value/hello2", []byte("Hello, world"))
+	// if err != nil {
+	// 	return 1
+	// }
 
-	keys, err := db.List("value")
-	if len(keys) != 2 || err != nil {
-		return 1
-	}
+	// keys, err := db.List("value")
+	// if len(keys) != 2 || err != nil {
+	// 	return 1
+	// }
 
-	data, err := db.Get("value/hello")
-	if err != nil {
-		return 1
-	}
+	// data, err := db.Get("value/hello")
+	// if err != nil {
+	// 	return 1
+	// }
 
-	if string(data) != "Hello, world" {
-		return 1
-	}
+	// if string(data) != "Hello, world" {
+	// 	return 1
+	// }
 
-	err = db.Delete("value/hello")
-	if err != nil {
-		return 1
-	}
+	// err = db.Delete("value/hello")
+	// if err != nil {
+	// 	return 1
+	// }
 
-	data, err = db.Get("value/hello")
-	if err == nil {
-		return 1
-	}
+	// data, err = db.Get("value/hello")
+	// if err == nil {
+	// 	return 1
+	// }
 
-	err = db.Close()
-	if err != nil {
-		return 1
-	}
+	// err = db.Close()
+	// if err != nil {
+	// 	return 1
+	// }
 
 	return 0
 }
