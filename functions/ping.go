@@ -1,12 +1,15 @@
 package lib
 
+//Import the necessary libraries
 import (
+	"encoding/json"
+
 	"bitbucket.org/taubyte/go-sdk/database"
 	"bitbucket.org/taubyte/go-sdk/event"
 )
 
 //export ping
-func ping(e event.Event) uint32 {
+func readDataAsJson(e event.Event) uint32 {
 	//Get the database reference
 	db, err := database.New("testdb")
 	if err != nil {
@@ -25,7 +28,15 @@ func ping(e event.Event) uint32 {
 		return 1 //roll out
 	}
 
+	//Generate a json response	
+	jsonData, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		return 1
+	}
+
 	//Send the data back to the browser
-	h.Write(data)
+	h.Write(jsonData)
+
+	//Return 0 cuz IDK, just do it
 	return 0
 }
