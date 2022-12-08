@@ -18,6 +18,7 @@ func rd(e event.Event) uint32 {
 	// 	return 1
 	// }
 
+
 	// //Get the data from the database
 	// data,err := db.Get("value/hello")
 	// if err != nil {
