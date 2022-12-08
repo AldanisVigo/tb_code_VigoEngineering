@@ -14,6 +14,11 @@ func readDataAsJson(e event.Event) uint32 {
 		return 1
 	}
 
+	err = db.Put("value/hello", []byte("Hello, world"))
+	if err != nil {
+		return 1
+	}
+
 	//Get the data from the database
 	data,err := db.Get("value/hello")
 	if err != nil {
