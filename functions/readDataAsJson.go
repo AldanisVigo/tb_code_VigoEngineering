@@ -2,7 +2,7 @@ package lib
 
 //Import the necessary libraries
 import (
-	"bitbucket.org/taubyte/go-sdk/database"
+	// "bitbucket.org/taubyte/go-sdk/database"
 	"bitbucket.org/taubyte/go-sdk/event"
 )
 
