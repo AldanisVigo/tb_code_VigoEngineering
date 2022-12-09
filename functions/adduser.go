@@ -16,12 +16,6 @@ type User struct {
 	age int32
 }
 
-type Foo struct {
-    UUID  string
-    State string
-    Titus map[string]Foo
-}
-
 //export adduser
 func adduser(e event.Event) uint32 {
 	//Get the http object from the event
@@ -49,8 +43,9 @@ func adduser(e event.Event) uint32 {
 		return 1
 	}
 
-	incomingUser := &User{}
-	incomingUser.UnmarshalJSON(bodyData)
+	h.Write(bodyData)
+	// incomingUser := &User{}
+	// incomingUser.UnmarshalJSON(bodyData)
 
 	// //Close the db
 	// err = db.Close()
@@ -59,7 +54,7 @@ func adduser(e event.Event) uint32 {
 	// }
 
 	//Return what we get
- 	h.Write([]byte(incomingUser.name + " " + incomingUser.lname + " - Age: " + string(incomingUser.age)))
+ 	// h.Write([]byte(incomingUser.name + " " + incomingUser.lname + " - Age: " + string(incomingUser.age)))
   
   	return 0
 }
