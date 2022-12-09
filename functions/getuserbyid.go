@@ -12,15 +12,12 @@ import (
 //go:generate easyjson -all ${GOFILE}
 
 //easyjson:json
-type User struct {
+type UserRequest struct {
 	UUID string
-	name string
-	lname string
-	age int32
 }
 
-//export adduser
-func adduser(e event.Event) uint32 {
+//export getuserbyid
+func getuserbyid(e event.Event) uint32 {
 	//Get the http object from the event
   	h, err := e.HTTP()
 		if err != nil {
@@ -47,13 +44,16 @@ func adduser(e event.Event) uint32 {
 	}
 
 	//Create an empty user
-	incomingUser := &User{}
+	incomingUser := &UserRequest{}
 
 	//Fill it with the unmarshalled json version of the body data
 	incomingUser.UnmarshalJSON(bodyData)
 
 	//Save the user JSON to the the database
-	db.Put(incomingUser.UUID,bodyData)
+	data, err := db.Get(incomingUser.UUID)
+	if err != nil {
+		return 1
+	}
 	
 	//Close the db
 	err = db.Close()
@@ -62,7 +62,7 @@ func adduser(e event.Event) uint32 {
 	}
 	
 	//Return a response to the caller
-	h.Write([]byte("{ UUID : " + incomingUser.UUID + ", ADDED: true}"))
+	h.Write([]byte(data))
 
   	return 0
 }
