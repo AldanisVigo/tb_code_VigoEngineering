@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"fmt"
 	"io/ioutil"
 
 	"bitbucket.org/taubyte/go-sdk/event"
@@ -32,6 +33,8 @@ func adduser(e event.Event) uint32 {
 	if err != nil {
 		return 1
 	}
+
+	fmt.Println(bodyData)
 
 	// //Close the db
 	// err = db.Close()
