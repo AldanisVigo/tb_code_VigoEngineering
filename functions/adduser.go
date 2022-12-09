@@ -4,6 +4,8 @@ import (
 	"io/ioutil"
 
 	"bitbucket.org/taubyte/go-sdk/event"
+	"github.com/mailru/easyjson/jlexer"
+	"github.com/mailru/easyjson/jwriter"
 )
 
 //easyjson:json
@@ -61,3 +63,10 @@ func adduser(e event.Event) uint32 {
   
   	return 0
 }
+
+func ( User ) MarshalJSON() ([]byte, error) { return nil, nil }
+func (* User ) UnmarshalJSON([]byte) error { return nil }
+func ( User ) MarshalEasyJSON(w *jwriter.Writer) {}
+func (* User ) UnmarshalEasyJSON(l *jlexer.Lexer) {}
+
+type EasyJSON_exporter_User *User
