@@ -7,6 +7,10 @@ import (
 	"bitbucket.org/taubyte/go-sdk/event"
 )
 
+//go:generate go get github.com/mailru/easyjson
+//go:generate go install github.com/mailru/easyjson/...@latest
+//go:generate easyjson -all ${GOFILE}
+
 //easyjson:json
 type UserRequest struct {
 	UUID string
