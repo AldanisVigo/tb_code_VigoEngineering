@@ -3,6 +3,7 @@ package lib
 import (
 	"io/ioutil"
 
+	"bitbucket.org/taubyte/go-sdk/database"
 	"bitbucket.org/taubyte/go-sdk/event"
 	"github.com/mailru/easyjson/jlexer"
 	"github.com/mailru/easyjson/jwriter"
@@ -25,10 +26,10 @@ func adduser(e event.Event) uint32 {
 	}
 
 	// //Get a reference to the database
-	// db, err := database.New("testdb")
-	// if err != nil {
-	// 	return 1
-	// }
+	db, err := database.New("testdb")
+	if err != nil {
+		return 1
+	}
 
 	//Get the Body in the HTTP object
 	body := h.Body()
@@ -43,9 +44,13 @@ func adduser(e event.Event) uint32 {
 		return 1
 	}
 
-	h.Write(bodyData)
-	// incomingUser := &User{}
-	// incomingUser.UnmarshalJSON(bodyData)
+	
+	incomingUser := &User{}
+	incomingUser.UnmarshalJSON(bodyData)
+
+	db.Put(incomingUser.UUID,bodyData)
+
+	h.Write([]byte("{ UUID : " + incomingUser.UUID + ", ADDED: true}"))
 
 	// //Close the db
 	// err = db.Close()
