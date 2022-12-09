@@ -5,8 +5,8 @@ import (
 
 	"bitbucket.org/taubyte/go-sdk/database"
 	"bitbucket.org/taubyte/go-sdk/event"
-	"github.com/mailru/easyjson/jlexer"
-	"github.com/mailru/easyjson/jwriter"
+	// "github.com/mailru/easyjson/jlexer"
+	// "github.com/mailru/easyjson/jwriter"
 )
 
 //go:generate go get github.com/mailru/easyjson
@@ -68,9 +68,9 @@ func adduser(e event.Event) uint32 {
   	return 0
 }
 
-func ( User ) MarshalJSON() ([]byte, error) { return nil, nil }
-func (* User ) UnmarshalJSON([]byte) error { return nil }
-func ( User ) MarshalEasyJSON(w *jwriter.Writer) {}
-func (* User ) UnmarshalEasyJSON(l *jlexer.Lexer) {}
+// func ( User ) MarshalJSON() ([]byte, error) { return nil, nil }
+// func (* User ) UnmarshalJSON([]byte) error { return nil }
+// func ( User ) MarshalEasyJSON(w *jwriter.Writer) {}
+// func (* User ) UnmarshalEasyJSON(l *jlexer.Lexer) {}
 
-type EasyJSON_exporter_User *User
+// type EasyJSON_exporter_User *User
