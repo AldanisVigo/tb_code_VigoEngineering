@@ -11,7 +11,7 @@ func wok(e event.Event) uint32 {
 		if err != nil {
 		return 1
 	}
-	
+
 	db, err := database.New("testdb")
 	if err != nil {
 		return 1
@@ -26,3 +26,5 @@ func wok(e event.Event) uint32 {
   
   	return 0
 }
+
+
