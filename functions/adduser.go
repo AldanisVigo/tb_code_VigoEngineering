@@ -1,11 +1,24 @@
 package lib
 
 import (
-	"fmt"
 	"io/ioutil"
 
 	"bitbucket.org/taubyte/go-sdk/event"
 )
+
+//easyjson:json
+type User struct {
+	UUID string
+	name string
+	lname string
+	age int32
+}
+
+type Foo struct {
+    UUID  string
+    State string
+    Titus map[string]Foo
+}
 
 //export adduser
 func adduser(e event.Event) uint32 {
@@ -34,7 +47,8 @@ func adduser(e event.Event) uint32 {
 		return 1
 	}
 
-	fmt.Println(bodyData)
+	incomingUser := &User{}
+	incomingUser.UnmarshalJSON(bodyData)
 
 	// //Close the db
 	// err = db.Close()
@@ -43,7 +57,7 @@ func adduser(e event.Event) uint32 {
 	// }
 
 	//Return what we get
- 	h.Write([]byte(bodyData))
+ 	h.Write([]byte(incomingUser.name + " " + incomingUser.lname + " - Age: " + string(incomingUser.age)))
   
   	return 0
 }
