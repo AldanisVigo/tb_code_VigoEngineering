@@ -9,6 +9,10 @@ import (
 	"github.com/mailru/easyjson/jwriter"
 )
 
+//go:generate go get github.com/mailru/easyjson
+//go:generate go install github.com/mailru/easyjson/...@latest
+//go:generate easyjson -all ${GOFILE}
+
 //easyjson:json
 type User struct {
 	UUID string
