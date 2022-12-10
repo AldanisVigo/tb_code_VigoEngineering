@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"fmt"
 	"io/ioutil"
 
 	"bitbucket.org/taubyte/go-sdk/database"
@@ -50,10 +51,17 @@ func adduser(e event.Event) uint32 {
 	incomingUser := &User{}
 
 	//Fill it with the unmarshalled json version of the body data
-	incomingUser.UnmarshalJSON(bodyData)
+	err = incomingUser.UnmarshalJSON(bodyData)
+	if err != nil {
+		return 1
+	}
 
 	//Save the user JSON to the the database
-	db.Put(incomingUser.UUID,bodyData)
+	//Ignoring errors from db.Put, h.Write, and UnmarshallJSON
+	err = db.Put(incomingUser.UUID,bodyData)
+	if err != nil {
+		return 1
+	}
 	
 	//Close the db
 	err = db.Close()
@@ -62,7 +70,13 @@ func adduser(e event.Event) uint32 {
 	}
 	
 	//Return a response to the caller
-	h.Write([]byte("{ UUID : " + incomingUser.UUID + ", ADDED: true}"))
+	w, err := h.Write([]byte("{ UUID : " + incomingUser.UUID + ", ADDED: true}"))
+	if err != nil{
+		return 1
+	}
+
+	//Print out result
+	fmt.Println(w)
 
   	return 0
 }
