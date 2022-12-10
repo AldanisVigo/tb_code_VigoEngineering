@@ -2,7 +2,6 @@ package lib
 
 import (
 	"io/ioutil"
-
 	"bitbucket.org/taubyte/go-sdk/database"
 	"bitbucket.org/taubyte/go-sdk/event"
 )
