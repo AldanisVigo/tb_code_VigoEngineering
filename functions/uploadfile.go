@@ -64,6 +64,7 @@ func uploadfile(e event.Event) uint32 {
 		return 1 //Eject
 	}
 
+
 	w,err := h.Write([]byte("{ \"file\" : \"" + string(incomingFileUploadRequest.file) + "\"}"))
 	fmt.Print(w)
 
