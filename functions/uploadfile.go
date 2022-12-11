@@ -66,6 +66,6 @@ func uploadfile(e event.Event) uint32 {
 	
 	//Return a response to the caller
 	h.Write([]byte("{ UUID : " + incomingFileUploadRequest.UUID + ", FILE_NAME: " + incomingFileUploadRequest.name + ",FILE_UPLOADED: true}"))
-	
+
   	return 0
 }

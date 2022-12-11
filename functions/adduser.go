@@ -25,26 +25,38 @@ func adduser(e event.Event) uint32 {
 	//Get the http object from the event
   	h, err := e.HTTP()
 		if err != nil {
+		fmt.Print(err)
+		return 1
+	} 
+
+	err = doSomeWork(h)
+	if err != nil{
+		h.Write([]byte(fmt.Sprintf("Add user failed with %s",err)))
 		return 1
 	}
 
+	//Execution succeeded
+	return 0
+}
+
+func doSomeWork(h event.HttpEvent) error {
 	// //Get a reference to the database
 	db, err := database.New("testdb")
 	if err != nil {
-		return 1
+		return err
 	}
 
 	//Get the Body in the HTTP object
 	body := h.Body()
 	bodyData, err := ioutil.ReadAll(body)
 	if err != nil {
-		return 1
+		return err
 	}
 
 	//Close the body
 	err = body.Close()
 	if err != nil {
-		return 1
+		return err
 	}
 
 	//Create an empty user
@@ -53,30 +65,31 @@ func adduser(e event.Event) uint32 {
 	//Fill it with the unmarshalled json version of the body data
 	err = incomingUser.UnmarshalJSON(bodyData)
 	if err != nil {
-		return 1
+		return err
 	}
 
 	//Save the user JSON to the the database
 	//Ignoring errors from db.Put, h.Write, and UnmarshallJSON
 	err = db.Put(incomingUser.UUID,bodyData)
 	if err != nil {
-		return 1
+		return err
 	}
 	
 	//Close the db
 	err = db.Close()
 	if err != nil {
-		return 1
+		return err
 	}
 	
 	//Return a response to the caller
 	w, err := h.Write([]byte("{ UUID : " + incomingUser.UUID + ", ADDED: true}"))
 	if err != nil{
-		return 1
+		return err
 	}
 
 	//Print out result
 	fmt.Println(w)
 
-  	return 0
+  	return nil
 }
+
