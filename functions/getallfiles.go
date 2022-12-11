@@ -52,8 +52,12 @@ func getallfiles(e event.Event) uint32 {
 	incomingAllFilesRequest := &FilesRequest{}
 
 	//Fill it with the unmarshalled json version of the body data
-	incomingAllFilesRequest.UnmarshalJSON(allFilesRequestBody)
-	
+	err = incomingAllFilesRequest.UnmarshalJSON(allFilesRequestBody)
+	if err != nil{
+		h.Write([]byte("{ UUID: " + incomingAllFilesRequest.UUID + ", ERROR: " + err.Error()))
+		return 1
+	}
+
 	//Get the storage for path
 	filesStorage, err := storage.Get(incomingAllFilesRequest.UUID + "/" + incomingAllFilesRequest.name)
 	if err != nil {
