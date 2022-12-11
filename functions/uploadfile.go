@@ -14,7 +14,7 @@ import (
 //easyjson:json
 type FileUploadRequest struct {
 	UUID string
-	name string
+	filePath string
 	file []byte
 }
 
@@ -64,7 +64,7 @@ func uploadfile(e event.Event) uint32 {
 		return 1 //Eject
 	}
 
-	w,err := h.Write([]byte("{ \"file\" : \"" + string(incomingFileUploadRequest.file) + "\", \"path\" : \"" + incomingFileUploadRequest.UUID + "/" + incomingFileUploadRequest.name + "\"}"))
+	w,err := h.Write([]byte("{ \"file\" : \"" + string(incomingFileUploadRequest.file) + "\", \"path\" : \"" + incomingFileUploadRequest.UUID + "/" + incomingFileUploadRequest.filePath + "\"}"))
 	fmt.Print(w)
 
 	// //Save the file in the json request to the file storage at the uuid/name/file path
