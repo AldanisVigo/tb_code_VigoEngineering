@@ -33,7 +33,7 @@ func uploadfile(e event.Event) uint32 {
 	testStorage, err := storage.New("teststorage")
 	if err != nil { //If there's an error
 		//Write a response to the client with the error
-		h.Write([]byte("{ ERROR:" + err.Error() + "}"))
+		h.Write([]byte("{ \"error\": \"" + err.Error() + "\", \"msg\" : \"There was an rerror opening the test storage in the dFunction.\"}"))
 		return 1 //Eject
 	}
 
@@ -43,14 +43,14 @@ func uploadfile(e event.Event) uint32 {
 	fileUploadRequestContents, err := ioutil.ReadAll(body)
 	if err != nil { //If there's an error while reading
 		//Write a response to the client letting them know of the error
-		h.Write([]byte("{ ERROR:" + err.Error() + "}"))
+		h.Write([]byte("{ \"error\" : \"" + err.Error() + "\", \"msg\" : \"There was an error reading the body of your request in the dFunction.\"}"))
 		return 1 //Eject
 	}
 
 	err = body.Close() //Close the body
 	if err != nil { //If there's an error while closing the body
 		//Write a response to the client letting them know about the error
-		h.Write([]byte("{ ERROR:" + err.Error() + "}"))
+		h.Write([]byte("{ \"error\" : \"" + err.Error() + "\", \"msg\" : \"There was an error closing the body or your request in the dFunction.\"}"))
 		return 1 //Eject
 	}
 
@@ -61,7 +61,7 @@ func uploadfile(e event.Event) uint32 {
 	err = incomingFileUploadRequest.UnmarshalJSON(fileUploadRequestContents)
 	if err != nil { //If there's an error while serializing the JSON into a FileUploadRequest
 		//Send a response back to the client letting them know about the error
-		h.Write([]byte("{ ERROR:" + err.Error() + "}")) 
+		h.Write([]byte("{ \"error\" : \"" + err.Error() + "\", \"msg\" : \"There was an error serializing your request into a FileUploadRequest in te dFunction.\"}")) 
 		return 1 //Eject
 	}
 
@@ -72,7 +72,7 @@ func uploadfile(e event.Event) uint32 {
 	version , err := file.Add(incomingFileUploadRequest.file, true)
 	if err != nil { //If there's an error while adding the file to the storage
 		//Write a response to the client letting them know about the error
-		h.Write([]byte("{ ERROR:" + err.Error() + "}"))
+		h.Write([]byte("{ \"error\" : \"" + err.Error() + "\", \"msg\" : \"There was an error addin the file to the test storage in the dFunction.\"}"))
 		return 1 //Eject
 	}
 
@@ -80,7 +80,7 @@ func uploadfile(e event.Event) uint32 {
 	fmt.Print(version)
 	
 	//Return a response to the caller
-	w, err := h.Write([]byte("{ UUID : " + incomingFileUploadRequest.UUID + ", FILE_NAME: " + incomingFileUploadRequest.name + ",FILE_UPLOADED: true}"))
+	w, err := h.Write([]byte("{ \"UUID\" : \"" + incomingFileUploadRequest.UUID + "\" , \"filename\" : \"" + incomingFileUploadRequest.name + "\",\"file_uploaded\" : true }"))
 	if err != nil { //If there's an error while writing a response back 
 		fmt.Print(err) //Print the error
 	}
