@@ -17,55 +17,77 @@ type FileUploadRequest struct {
 	UUID string
 	name string
 	file []byte
-
-	//UUID/filename/file
 }
 
 //export uploadfile
 func uploadfile(e event.Event) uint32 {
 	//Get the http object from the event
   	h, err := e.HTTP()
-		if err != nil {
-		return 1
+	if err != nil {	//If there's an error
+		//Print the error
+		fmt.Println(err.Error())
+		return 1 //Eject
 	}
 
 	// //Get a reference to our existing storage bucket
 	testStorage, err := storage.New("teststorage")
-	if err != nil {
-		return 1
+	if err != nil { //If there's an error
+		//Write a response to the client with the error
+		h.Write([]byte("{ ERROR:" + err.Error() + "}"))
+		return 1 //Eject
 	}
 
 	//Get the Body in the HTTP object
 	body := h.Body()
+	//Read the contents of the body of the request
 	fileUploadRequestContents, err := ioutil.ReadAll(body)
-	if err != nil {
-		return 1
+	if err != nil { //If there's an error while reading
+		//Write a response to the client letting them know of the error
+		h.Write([]byte("{ ERROR:" + err.Error() + "}"))
+		return 1 //Eject
 	}
 
-	//Close the body
-	err = body.Close()
-	if err != nil {
-		return 1
+	err = body.Close() //Close the body
+	if err != nil { //If there's an error while closing the body
+		//Write a response to the client letting them know about the error
+		h.Write([]byte("{ ERROR:" + err.Error() + "}"))
+		return 1 //Eject
 	}
 
-	//Create an empty user
+	//Create an empty FileUploadRequest
 	incomingFileUploadRequest := &FileUploadRequest{}
 
 	//Fill it with the unmarshalled json version of the body data
-	incomingFileUploadRequest.UnmarshalJSON(fileUploadRequestContents)
+	err = incomingFileUploadRequest.UnmarshalJSON(fileUploadRequestContents)
+	if err != nil { //If there's an error while serializing the JSON into a FileUploadRequest
+		//Send a response back to the client letting them know about the error
+		h.Write([]byte("{ ERROR:" + err.Error() + "}")) 
+		return 1 //Eject
+	}
 
 	//Save the file in the json request to the file storage at the uuid/name/file path
 	file := testStorage.File(incomingFileUploadRequest.UUID + "/" + incomingFileUploadRequest.name)
+	
+	//Add the file and get the version of the file
 	version , err := file.Add(incomingFileUploadRequest.file, true)
-	if err != nil {
-		return 1
+	if err != nil { //If there's an error while adding the file to the storage
+		//Write a response to the client letting them know about the error
+		h.Write([]byte("{ ERROR:" + err.Error() + "}"))
+		return 1 //Eject
 	}
 
 	//Print the version of the file
 	fmt.Print(version)
 	
 	//Return a response to the caller
-	h.Write([]byte("{ UUID : " + incomingFileUploadRequest.UUID + ", FILE_NAME: " + incomingFileUploadRequest.name + ",FILE_UPLOADED: true}"))
+	w, err := h.Write([]byte("{ UUID : " + incomingFileUploadRequest.UUID + ", FILE_NAME: " + incomingFileUploadRequest.name + ",FILE_UPLOADED: true}"))
+	if err != nil { //If there's an error while writing a response back 
+		fmt.Print(err) //Print the error
+	}
 
+	//Print the result of writing a response
+	fmt.Print(w)
+
+	//Successful operation
   	return 0
 }
