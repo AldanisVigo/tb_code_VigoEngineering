@@ -95,18 +95,29 @@ func getallfiles(e event.Event) uint32 {
 		return 1
 	}
 
+	//Attempt to retrieve the requested files
+	err = retrieveRequestedFiles(h)
+	if err != nil { //If there's an error while attempting to get the files
+		//Send a response to the client letting them know there was an error
+		h.Write([]byte(fmt.Sprintf("{\"error\" : \"%s\"}",err.Error())))
+		return 1
+	}
+
+	return 0
+}
+
+func retrieveRequestedFiles(h event.HttpEvent) error {
 	//Get the Body in the HTTP object
 	body := h.Body()
 	allFilesRequestBody, err := ioutil.ReadAll(body)
 	if err != nil {
-		return 1
+		return err
 	}
 
 	//Close the body
 	err = body.Close()
 	if err != nil {
-		h.Write([]byte("{ Error : " + err.Error() + "}"))
-		return 1
+		return err
 	}
 
 	//Create an empty file request
@@ -115,8 +126,7 @@ func getallfiles(e event.Event) uint32 {
 	//Fill it in with the data from the request body
 	err = getFileRequestFromJson(string(allFilesRequestBody),filesReq)
 	if err != nil {
-		h.Write([]byte("\"error\":\"" + err.Error() + "\""))
-		return 1
+		return err
 	}
 
 	// h.Write([]byte(fmt.Sprintf("{\"UUID\" : \"%s\",\"name\" : \"%s\"}",filesReq.UUID,filesReq.name)))
@@ -124,15 +134,13 @@ func getallfiles(e event.Event) uint32 {
 	//Get the storage for path
 	filesStorage, err := storage.Get(filesReq.UUID + "/" + filesReq.name)
 	if err != nil {
-		h.Write([]byte(fmt.Sprintf("{\"UUID\" : \"%s\",\"error\" : \"%s\"}",filesReq.UUID,err.Error())))
-		return 1
+		return err
 	}
 
 	//Get the files from the storage at that path
 	files, err := filesStorage.ListFiles()
 	if err != nil {
-		h.Write([]byte(fmt.Sprintf("{\"UUID\" : \"%s\",\"error\" : \"%s\"}",filesReq.UUID,err.Error())))
-		return 1
+		return err
 	}
 
 	//Grab the last file
@@ -141,8 +149,7 @@ func getallfiles(e event.Event) uint32 {
 	//Get the last file's ref
 	lastFileRef, err := lastFile.GetFile()
 	if err != nil {
-		h.Write([]byte(fmt.Sprintf("{\"UUID\" : \"%s\",\"error\" : \"%s\"}",filesReq.UUID,err.Error())))
-		return 1
+		return err
 	}
 
 	//Read the last file into a byte array
@@ -150,8 +157,7 @@ func getallfiles(e event.Event) uint32 {
 	read,err := lastFileRef.Read(lastFileContents)
 	if err != nil {
 		fmt.Println("Error while reading file. Read: ", read, "bytes from file")
-		h.Write([]byte(fmt.Sprintf("{\"UUID\" : \"%s\",\"error\" : \"%s\"}",filesReq.UUID,err.Error())))
-		return 1
+		return err
 	}
 
 	//Attach the files to the response
@@ -171,11 +177,12 @@ func getallfiles(e event.Event) uint32 {
 	//Return a response to the caller
 	w,err := h.Write([]byte(fmt.Sprintf("{ \"path\" : \"%s\" \"file\" : \"%s\" }",filesReq.name,lastFileContents)))
 	if err != nil {
-		return 1
+		return err
 	}
 
 	// //Print results of calling Write
 	fmt.Print(w)
 	
-  	return 0
+	//No errors so return nil
+  	return nil
 }
