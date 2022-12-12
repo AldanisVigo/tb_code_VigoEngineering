@@ -1,7 +1,6 @@
 package lib
 
 import (
-	"fmt"
 	"io/ioutil"
 
 	"bitbucket.org/taubyte/go-sdk/event"
@@ -58,42 +57,44 @@ func getallfiles(e event.Event) uint32 {
 		return 1
 	}
 
-	//Get the storage for path
-	filesStorage, err := storage.Get(incomingAllFilesRequest.UUID + "/" + incomingAllFilesRequest.name)
-	if err != nil {
-		h.Write([]byte("{ UUID : " + incomingAllFilesRequest.UUID + ", Error : " + err.Error() + "}"))
-		return 1
-	}
+	h.Write([]byte("{\"UUID: \" : \"" + incomingAllFilesRequest.UUID  + "\", \"name\":\"" + incomingAllFilesRequest.name + "\"}"))
 
-	//Get the files from the storage at that path
-	files, err := filesStorage.ListFiles()
-	if err != nil {
-		h.Write([]byte(" { UUID : " + incomingAllFilesRequest.UUID + ", Error : " + err.Error() + "}"))
-		return 1
-	}
+	// //Get the storage for path
+	// filesStorage, err := storage.Get(incomingAllFilesRequest.UUID + "/" + incomingAllFilesRequest.name)
+	// if err != nil {
+	// 	h.Write([]byte("{ UUID : " + incomingAllFilesRequest.UUID + ", Error : " + err.Error() + "}"))
+	// 	return 1
+	// }
 
-	//Attach the files to the response
-	filesResponse := &FilesResponse{
-		UUID: incomingAllFilesRequest.UUID,
-		name : incomingAllFilesRequest.name,
-		files : files,
-	}
+	// //Get the files from the storage at that path
+	// files, err := filesStorage.ListFiles()
+	// if err != nil {
+	// 	h.Write([]byte(" { UUID : " + incomingAllFilesRequest.UUID + ", Error : " + err.Error() + "}"))
+	// 	return 1
+	// }
+
+	// //Attach the files to the response
+	// filesResponse := &FilesResponse{
+	// 	UUID: incomingAllFilesRequest.UUID,
+	// 	name : incomingAllFilesRequest.name,
+	// 	files : files,
+	// }
 	
-	//Get the serialized json from the response we created
-	filesResponseJson, err := filesResponse.MarshalJSON()
-	if err != nil {
-		h.Write([]byte(" { UUID : " + incomingAllFilesRequest.UUID + ", Error : " + err.Error() + "}"))
-		return 1
-	}
+	// //Get the serialized json from the response we created
+	// filesResponseJson, err := filesResponse.MarshalJSON()
+	// if err != nil {
+	// 	h.Write([]byte(" { UUID : " + incomingAllFilesRequest.UUID + ", Error : " + err.Error() + "}"))
+	// 	return 1
+	// }
 	
-	//Return a response to the caller
-	w,err := h.Write([]byte(filesResponseJson))
-	if err != nil {
-		return 1
-	}
+	// //Return a response to the caller
+	// w,err := h.Write([]byte(filesResponseJson))
+	// if err != nil {
+	// 	return 1
+	// }
 
-	//Print results of calling Write
-	fmt.Print(w)
+	// //Print results of calling Write
+	// fmt.Print(w)
 	
   	return 0
 }
