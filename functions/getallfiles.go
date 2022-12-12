@@ -129,10 +129,8 @@ func retrieveRequestedFiles(h event.HttpEvent) error {
 		return err
 	}
 
-	// h.Write([]byte(fmt.Sprintf("{\"UUID\" : \"%s\",\"name\" : \"%s\"}",filesReq.UUID,filesReq.name)))
-
 	//Get the storage for path
-	filesStorage, err := storage.Get(filesReq.UUID + "/" + filesReq.name)
+	filesStorage, err := storage.Get("aldanisvigo/aldanisvigo")
 	if err != nil {
 		return err
 	}
