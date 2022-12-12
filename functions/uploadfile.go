@@ -1,8 +1,10 @@
 package lib
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
+	"strings"
 
 	"bitbucket.org/taubyte/go-sdk/event"
 )
@@ -16,6 +18,52 @@ type FileUploadRequest struct {
 	UUID string
 	filePath string
 	file string
+}
+
+func getFileUploadRequestFromJson(json string) (*FileUploadRequest,error){
+	if len(json) == 0{
+		return nil, errors.New("The json provided is empty")
+	}
+
+	//Get the parts out of the json
+	_,after,openingCharFound := strings.Cut(json,"{") 
+	if !openingCharFound { //If the opening { is not found
+		//Let the user know we couldn't parse the json
+		return nil, errors.New("Could not parse JSON starting json character { not found.")
+	}else { //Otherwise, we can grab everything after the { character and cut it by }
+		//We're interested in everything before the } character
+		before,_,closingCharFound := strings.Cut(after,"}")
+		if !closingCharFound { //If the } character was not found 
+			//Let the user know the json could not be parsed because of the missing character
+			return nil, errors.New("Could not parse JSON closing json character } not found.")
+		}
+
+		//If we are able to get everything between the { ... }, we can then split by commas
+		//Create a map of key value pairs that is empty
+		mapOfKeyValuePairs := make(map[string]string)
+		//Split the ... content by commas to separate the key:value pairs
+		keyValuePairsWithColonSep := strings.Split(before, ",")
+
+		//Iterate through the key:value pairs
+		for _ ,value := range keyValuePairsWithColonSep {
+			//Split them by the colon to separate the key and the value
+			keyVal := strings.Split(value, ":")
+			//Isolate the key
+			key := keyVal[0]
+			//Isolate the value
+			val := keyVal[1]
+			//Add an entry on the map at the key set to the value
+			mapOfKeyValuePairs[key] = val
+		}
+
+		//Make an object of type FileUploadRequest and fill it with the information in the map
+		//And a nil error
+		return &FileUploadRequest{
+			UUID : mapOfKeyValuePairs["UUID"],
+			filePath: mapOfKeyValuePairs["filePath"],
+			file : mapOfKeyValuePairs["file"],
+		}, nil
+	}
 }
 
 //export uploadfile
@@ -54,24 +102,30 @@ func uploadfile(e event.Event) uint32 {
 	}
 
 	//Create an empty FileUploadRequest
-	incomingFileUploadRequest := &FileUploadRequest{}
+	// incomingFileUploadRequest := &FileUploadRequest{}
 
 	//Fill it with the unmarshalled json version of the body data
-	err = incomingFileUploadRequest.UnmarshalJSON(fileUploadRequestContents)
-	if err != nil { //If there's an error while serializing the JSON into a FileUploadRequest
-		//Send a response back to the client letting them know about the error
-		h.Write([]byte("{ \"error\" : \"" + err.Error() + "\", \"msg\" : \"There was an error serializing your request into a FileUploadRequest in te dFunction.\"}")) 
-		return 1 //Eject
-	}
+	// err = incomingFileUploadRequest.UnmarshalJSON(fileUploadRequestContents)
+	// if err != nil { //If there's an error while serializing the JSON into a FileUploadRequest
+	// 	//Send a response back to the client letting them know about the error
+	// 	h.Write([]byte("{ \"error\" : \"" + err.Error() + "\", \"msg\" : \"There was an error serializing your request into a FileUploadRequest in te dFunction.\"}")) 
+	// 	return 1 //Eject
+	// }
 
 	//Set the header's Content-Type of the response to application/json
 	// err = h.Headers().Set("Content-Type","application/json")
 	// if err != nil { //If there's an error setting the header's content type
 	// 	return 1 //Eject
 	// }
+
+	req,err := getFileUploadRequestFromJson(string(fileUploadRequestContents))
+	if err != nil {
+		h.Write([]byte("{ \"error\" : \"" +  err.Error() + "\" }"))
+		return 1
+	}
 	
 	//Write the json response back to the client
-	w,err := h.Write(fileUploadRequestContents)
+	w,err := h.Write([]byte("{ \"UUID\" : \"" + req.UUID + "\", \"path\" : \"" + req.filePath +"\", \"file\" : \"" + req.file + "\"}"))
 	fmt.Print(w)
 
 	// // //Save the file in the json request to the file storage at the uuid/name/file path
