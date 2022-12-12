@@ -149,7 +149,7 @@ func (v *User) UnmarshalJSON(data []byte) error {
 func (v *User) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjsonEc607727DecodeFunctionFunctions1(l, v)
 }
-func easyjsonEc607727DecodeFunctionFunctions2(in *jlexer.Lexer, out *FilesResponse) {
+func easyjsonEc607727DecodeFunctionFunctions2(in *jlexer.Lexer, out *FileUploadRequest) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -180,139 +180,7 @@ func easyjsonEc607727DecodeFunctionFunctions2(in *jlexer.Lexer, out *FilesRespon
 		in.Consumed()
 	}
 }
-func easyjsonEc607727EncodeFunctionFunctions2(out *jwriter.Writer, in FilesResponse) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	{
-		const prefix string = ",\"UUID\":"
-		out.RawString(prefix[1:])
-		out.String(string(in.UUID))
-	}
-	out.RawByte('}')
-}
-
-// MarshalJSON supports json.Marshaler interface
-func (v FilesResponse) MarshalJSON() ([]byte, error) {
-	w := jwriter.Writer{}
-	easyjsonEc607727EncodeFunctionFunctions2(&w, v)
-	return w.Buffer.BuildBytes(), w.Error
-}
-
-// MarshalEasyJSON supports easyjson.Marshaler interface
-func (v FilesResponse) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonEc607727EncodeFunctionFunctions2(w, v)
-}
-
-// UnmarshalJSON supports json.Unmarshaler interface
-func (v *FilesResponse) UnmarshalJSON(data []byte) error {
-	r := jlexer.Lexer{Data: data}
-	easyjsonEc607727DecodeFunctionFunctions2(&r, v)
-	return r.Error()
-}
-
-// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *FilesResponse) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonEc607727DecodeFunctionFunctions2(l, v)
-}
-func easyjsonEc607727DecodeFunctionFunctions3(in *jlexer.Lexer, out *FilesRequest) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
-		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
-		switch key {
-		case "UUID":
-			out.UUID = string(in.String())
-		default:
-			in.SkipRecursive()
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjsonEc607727EncodeFunctionFunctions3(out *jwriter.Writer, in FilesRequest) {
-	out.RawByte('{')
-	first := true
-	_ = first
-	{
-		const prefix string = ",\"UUID\":"
-		out.RawString(prefix[1:])
-		out.String(string(in.UUID))
-	}
-	out.RawByte('}')
-}
-
-// MarshalJSON supports json.Marshaler interface
-func (v FilesRequest) MarshalJSON() ([]byte, error) {
-	w := jwriter.Writer{}
-	easyjsonEc607727EncodeFunctionFunctions3(&w, v)
-	return w.Buffer.BuildBytes(), w.Error
-}
-
-// MarshalEasyJSON supports easyjson.Marshaler interface
-func (v FilesRequest) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonEc607727EncodeFunctionFunctions3(w, v)
-}
-
-// UnmarshalJSON supports json.Unmarshaler interface
-func (v *FilesRequest) UnmarshalJSON(data []byte) error {
-	r := jlexer.Lexer{Data: data}
-	easyjsonEc607727DecodeFunctionFunctions3(&r, v)
-	return r.Error()
-}
-
-// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *FilesRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonEc607727DecodeFunctionFunctions3(l, v)
-}
-func easyjsonEc607727DecodeFunctionFunctions4(in *jlexer.Lexer, out *FileUploadRequest) {
-	isTopLevel := in.IsStart()
-	if in.IsNull() {
-		if isTopLevel {
-			in.Consumed()
-		}
-		in.Skip()
-		return
-	}
-	in.Delim('{')
-	for !in.IsDelim('}') {
-		key := in.UnsafeFieldName(false)
-		in.WantColon()
-		if in.IsNull() {
-			in.Skip()
-			in.WantComma()
-			continue
-		}
-		switch key {
-		case "UUID":
-			out.UUID = string(in.String())
-		default:
-			in.SkipRecursive()
-		}
-		in.WantComma()
-	}
-	in.Delim('}')
-	if isTopLevel {
-		in.Consumed()
-	}
-}
-func easyjsonEc607727EncodeFunctionFunctions4(out *jwriter.Writer, in FileUploadRequest) {
+func easyjsonEc607727EncodeFunctionFunctions2(out *jwriter.Writer, in FileUploadRequest) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -327,23 +195,89 @@ func easyjsonEc607727EncodeFunctionFunctions4(out *jwriter.Writer, in FileUpload
 // MarshalJSON supports json.Marshaler interface
 func (v FileUploadRequest) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonEc607727EncodeFunctionFunctions4(&w, v)
+	easyjsonEc607727EncodeFunctionFunctions2(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v FileUploadRequest) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonEc607727EncodeFunctionFunctions4(w, v)
+	easyjsonEc607727EncodeFunctionFunctions2(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *FileUploadRequest) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonEc607727DecodeFunctionFunctions4(&r, v)
+	easyjsonEc607727DecodeFunctionFunctions2(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *FileUploadRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonEc607727DecodeFunctionFunctions4(l, v)
+	easyjsonEc607727DecodeFunctionFunctions2(l, v)
+}
+func easyjsonEc607727DecodeFunctionFunctions3(in *jlexer.Lexer, out *FileRequest) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "UUID":
+			out.UUID = string(in.String())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjsonEc607727EncodeFunctionFunctions3(out *jwriter.Writer, in FileRequest) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"UUID\":"
+		out.RawString(prefix[1:])
+		out.String(string(in.UUID))
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v FileRequest) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjsonEc607727EncodeFunctionFunctions3(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v FileRequest) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonEc607727EncodeFunctionFunctions3(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *FileRequest) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjsonEc607727DecodeFunctionFunctions3(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *FileRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonEc607727DecodeFunctionFunctions3(l, v)
 }

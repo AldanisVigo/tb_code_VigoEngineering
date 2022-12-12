@@ -15,13 +15,12 @@ import (
 //go:generate easyjson -all ${GOFILE}
 
 //easyjson:json
-type FilesRequest struct {
+type FileRequest struct {
 	UUID string
 	name string
-	//UUID/storage/...files
 }
 
-func (req *FilesRequest) ModifyUUID(uuid string) error {
+func (req *FileRequest) ModifyUUID(uuid string) error {
 	if len(uuid) == 0 {
 		return errors.New("The provided UUID is empty")
 	}
@@ -30,7 +29,7 @@ func (req *FilesRequest) ModifyUUID(uuid string) error {
 	return nil
 }
 
-func (req *FilesRequest) ModifyName(name string) error {
+func (req *FileRequest) ModifyName(name string) error {
 	if len(name) == 0 {
 		return errors.New("The provided name is empty")
 	}
@@ -39,14 +38,7 @@ func (req *FilesRequest) ModifyName(name string) error {
 	return nil
 }
 
-//easyjson:json
-type FilesResponse struct {
-	UUID string
-	name string
-	files string
-}
-
-func getFileRequestFromJson(json string, req *FilesRequest) error{
+func getFileRequestFromJson(json string, req *FileRequest) error{
 	//If the incoming json is empty
 	if len(json) == 0 {
 		//Return an error
@@ -87,8 +79,8 @@ func getFileRequestFromJson(json string, req *FilesRequest) error{
 	}
 }
 
-//export getallfiles
-func getallfiles(e event.Event) uint32 {
+//export getfile
+func getfile(e event.Event) uint32 {
 	//Get the http object from the event
   	h, err := e.HTTP()
 		if err != nil {
@@ -96,7 +88,7 @@ func getallfiles(e event.Event) uint32 {
 	}
 
 	//Attempt to retrieve the requested files
-	err = retrieveRequestedFiles(h)
+	err = retrieveRequestedFile(h)
 	if err != nil { //If there's an error while attempting to get the files
 		//Send a response to the client letting them know there was an error
 		h.Write([]byte(fmt.Sprintf("{\"error\" : \"%s\"}",err.Error())))
@@ -106,7 +98,7 @@ func getallfiles(e event.Event) uint32 {
 	return 0
 }
 
-func retrieveRequestedFiles(h event.HttpEvent) error {
+func retrieveRequestedFile(h event.HttpEvent) error {
 
 	//Get the Body in the HTTP object
 	body := h.Body()
@@ -122,7 +114,7 @@ func retrieveRequestedFiles(h event.HttpEvent) error {
 	}
 
 	//Create an empty file request
-	filesReq := &FilesRequest{}
+	filesReq := &FileRequest{}
 
 	//Fill it in with the data from the request body
 	err = getFileRequestFromJson(string(allFilesRequestBody),filesReq)
