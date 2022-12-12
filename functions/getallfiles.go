@@ -144,12 +144,15 @@ func retrieveRequestedFiles(h event.HttpEvent) error {
 	}
 
 	//Read the file into a byte array
-	fileContents := []byte{}
-	n,err := storageFile.Read(fileContents)
+	fileContents, err := ioutil.ReadAll(storageFile)
 	if err != nil {
-		fmt.Println(n)
 		return err
 	}
+	// n,err := storageFile.Read(fileContents)
+	// if err != nil {
+	// 	fmt.Println(n)
+	// 	return err
+	// }
 	
 
 	// h.Write([]byte(fmt.Sprintf("{\"UUID\" : \"%s\",\"name\" : \"%s\"}",filesReq.UUID,filesReq.name)))
