@@ -142,6 +142,17 @@ func retrieveRequestedFiles(h event.HttpEvent) error {
 		return err
 	}
 
+	//Read the file into a byte array
+	fileContents := []byte{}
+
+	//Read the contents of the file
+	n,err := storageFile.Read(fileContents)
+	if err != nil {
+		fmt.Println(n)
+		return err
+	}
+	
+
 	// h.Write([]byte(fmt.Sprintf("{\"UUID\" : \"%s\",\"name\" : \"%s\"}",filesReq.UUID,filesReq.name)))
 
 	//Get the storage for path
@@ -188,7 +199,7 @@ func retrieveRequestedFiles(h event.HttpEvent) error {
 	// }
 	
 	//Return a response to the caller
-	w,err := h.Write([]byte(fmt.Sprintf("{ \"path\" : \"%s\" \"file\" : \"%s\" }",filesReq.name,storageFile)))
+	w,err := h.Write([]byte(fmt.Sprintf("{ \"path\" : \"%s\" \"file\" : \"%s\" }",filesReq.name,string(fileContents))))
 	if err != nil {
 		return err
 	}
