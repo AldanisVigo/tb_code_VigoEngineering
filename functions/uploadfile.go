@@ -72,7 +72,7 @@ func uploadfile(e event.Event) uint32 {
 	}
 	
 	//Write the json response back to the client
-	w,err := h.Write([]byte("{ \"file\" : \"" + string(incomingFileUploadRequest.file) + "\"}"))
+	w,err := h.Write([]byte("{ \"file\" : \"" + incomingFileUploadRequest.file + "\"}"))
 	fmt.Print(w)
 
 	// //Save the file in the json request to the file storage at the uuid/name/file path
