@@ -24,14 +24,19 @@ type User struct {
 func adduser(e event.Event) uint32 {
 	//Get the http object from the event
   	h, err := e.HTTP()
-		if err != nil {
-		fmt.Print(err)
+	if err != nil {
+		fmt.Println(fmt.Errorf("Encountered error %s",err))
 		return 1
 	} 
 
-	err = doSomeWork(h)
-	if err != nil{
-		h.Write([]byte(fmt.Sprintf("Add user failed with %s",err)))
+	//Call the addTheUser and pass the event.HttpEvent
+	err = addTheUser(h)
+	if err != nil{ //If we encounter an error
+		//Set the header's content-type to json
+		h.Headers().Set("Content-Type","application/json")
+		
+		//Send a response to the user
+		h.Write([]byte(fmt.Sprintf("{ \"error\" : \"Add user failed with %s\" }",err)))
 		return 1
 	}
 
@@ -39,7 +44,10 @@ func adduser(e event.Event) uint32 {
 	return 0
 }
 
-func doSomeWork(h event.HttpEvent) error {
+/*
+	Add a new user to the testdb
+*/
+func addTheUser(h event.HttpEvent) error {
 	// //Get a reference to the database
 	db, err := database.New("testdb")
 	if err != nil {
@@ -90,6 +98,7 @@ func doSomeWork(h event.HttpEvent) error {
 	//Print out result
 	fmt.Println(w)
 
+	//Execution successful, return nil for error
   	return nil
 }
 
