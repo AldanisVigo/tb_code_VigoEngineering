@@ -73,6 +73,7 @@ func getFileUploadRequestFromJson(json string,req *FileUploadRequest) error {
 			mapOfKeyValuePairs[key] = val
 		}
 
+		//Modify the values in the empty req
 		req.ModifyFile(mapOfKeyValuePairs["file"])
 		req.ModifyFilePath(mapOfKeyValuePairs["filePath"])
 		req.ModifyUUID(mapOfKeyValuePairs["UUID"])
@@ -92,12 +93,22 @@ func uploadfile(e event.Event) uint32 {
 		return 1 //Eject
 	}
 
-	// //Get a reference to our existing storage bucket
+	//Upload the file in the request
+	err = uploadFileInRequest(h)
+	if err != nil { //If there's any errors while uploading the file to storage
+		//Write a response to the client with the error
+		h.Write([]byte("{ \"error\" : \"" + err.Error() + "\"}"))
+	}
+
+	//Execution successful
+	return 0
+}
+
+func uploadFileInRequest(h event.HttpEvent) error {
+ 	//Get a reference to our existing storage bucket
 	testStorage, err := storage.New("teststorage")
 	if err != nil { //If there's an error
-		//Write a response to the client with the error
-		h.Write([]byte("{ \"error\": \"" + err.Error() + "\", \"msg\" : \"There was an rerror opening the test storage in the dFunction.\"}"))
-		return 1 //Eject
+		return err //Return the error
 	}
 
 	//Get the Body in the HTTP object
@@ -106,43 +117,21 @@ func uploadfile(e event.Event) uint32 {
 	//Read the contents of the body of the request
 	fileUploadRequestContents, err := ioutil.ReadAll(body)
 	if err != nil { //If there's an error while reading
-		//Write a response to the client letting them know of the error
-		h.Write([]byte("{ \"error\" : \"" + err.Error() + "\", \"msg\" : \"There was an error reading the body of your request in the dFunction.\"}"))
-		return 1 //Eject
+		return err //Return the error
 	}
 
 	err = body.Close() //Close the body
 	if err != nil { //If there's an error while closing the body
-		//Write a response to the client letting them know about the error
-		h.Write([]byte("{ \"error\" : \"" + err.Error() + "\", \"msg\" : \"There was an error closing the body or your request in the dFunction.\"}"))
-		return 1 //Eject
+		return err //Return the error
 	}
-
-	//Create an empty FileUploadRequest
-	// incomingFileUploadRequest := &FileUploadRequest{}
-
-	//Fill it with the unmarshalled json version of the body data
-	// err = incomingFileUploadRequest.UnmarshalJSON(fileUploadRequestContents)
-	// if err != nil { //If there's an error while serializing the JSON into a FileUploadRequest
-	// 	//Send a response back to the client letting them know about the error
-	// 	h.Write([]byte("{ \"error\" : \"" + err.Error() + "\", \"msg\" : \"There was an error serializing your request into a FileUploadRequest in te dFunction.\"}")) 
-	// 	return 1 //Eject
-	// }
-
-	//Set the header's Content-Type of the response to application/json
-	// err = h.Headers().Set("Content-Type","application/json")
-	// if err != nil { //If there's an error setting the header's content type
-	// 	return 1 //Eject
-	// }
 
 	//Create an empty FileUploadRequest
 	req := &FileUploadRequest{}
 
 	//Fill it up with stuff from the fileUploadRequestContents
 	err = getFileUploadRequestFromJson(string(fileUploadRequestContents),req)
-	if err != nil {
-		h.Write([]byte("{ \"error\" : \"" +  err.Error() + "\" }"))
-		return 1
+	if err != nil { //If we get an error getting the UploadRequest from the json
+		return err //Return the error
 	}
 	
 	//Save the file in the json request to the file storage at the uuid/name/file path
@@ -151,9 +140,7 @@ func uploadfile(e event.Event) uint32 {
 	//Add the file and get the version of the file
 	version , err := file.Add([]byte(req.file), true)
 	if err != nil { //If there's an error while adding the file to the storage
-		//Write a response to the client letting them know about the error
-		h.Write([]byte("{ \"error\" : \"" + err.Error() + "\", \"msg\" : \"There was an error adding the file to the test storage in the dFunction.\"}"))
-		return 1 //Eject
+		return err //Return the error
 	}
 
 	//Print the version of the file
@@ -162,12 +149,12 @@ func uploadfile(e event.Event) uint32 {
 	//Return a response to the caller
 	w, err := h.Write([]byte("{ \"UUID\" : \"" + req.UUID + "\" , \"filename\" : \"" + req.filePath + "\",\"file_uploaded\" : true }"))
 	if err != nil { //If there's an error while writing a response back 
-		fmt.Print(err) //Print the error
+		return err //Return the error
 	}
 
 	//Print the result of writing a response
 	fmt.Print(w)
 
-	//Successful operation
-  	return 0
+	//Successful operation, return nil for error
+  	return nil
 }

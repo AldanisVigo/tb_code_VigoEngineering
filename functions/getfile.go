@@ -21,36 +21,38 @@ type FileRequest struct {
 }
 
 func (req *FileRequest) ModifyUUID(uuid string) error {
-	if len(uuid) == 0 {
+	if len(uuid) == 0 { //If the length of the UUID is 0
+		//Let them know it's empty
 		return errors.New("The provided UUID is empty")
 	}
 
-	req.UUID = uuid
-	return nil
+	req.UUID = uuid //Otherwise replace it in the FileRequest
+	return nil //Return nil for error
 }
 
 func (req *FileRequest) ModifyName(name string) error {
-	if len(name) == 0 {
+	if len(name) == 0 { //If the length of the name is 0
+		//Let them know it's empty
 		return errors.New("The provided name is empty")
 	}
 
-	req.name = name
-	return nil
+	req.name = name //Replace it in the FileRequest
+	return nil //Return nil for the error
 }
 
 func getFileRequestFromJson(json string, req *FileRequest) error{
-	//If the incoming json is empty
-	if len(json) == 0 {
-		//Return an error
-		return errors.New("The json provided is empty.")
+	if len(json) == 0 { //If the json is empty
+		return errors.New("The json provided is empty.") //Return an error
 	}
 
-	_,after,containsStarting := strings.Cut(json,"{")
-	if !containsStarting {
+	_,after,containsStarting := strings.Cut(json,"{") //Cut the json at the { character
+	if !containsStarting { //If the { character is missing
+		//Return an error letting them know
 		return errors.New("Error parsing json. Missing starting { json character.")
-	} else {
-		before,_,containsEnding := strings.Cut(after,"}")
-		if !containsEnding {
+	} else { //Otherwise
+		before,_,containsEnding := strings.Cut(after,"}") //Cut the the section after the { character by the } character
+		if !containsEnding { //If the } character is missing
+			//Return an error letting them know
 			return errors.New("Error parsing json. Missing ending } json character.")
 		}
 		
@@ -102,6 +104,8 @@ func retrieveRequestedFile(h event.HttpEvent) error {
 
 	//Get the Body in the HTTP object
 	body := h.Body()
+
+	//Read the contents of the body
 	allFilesRequestBody, err := ioutil.ReadAll(body)
 	if err != nil {
 		return err
