@@ -120,7 +120,7 @@ func getallfiles(e event.Event) uint32 {
 	}
 
 	//Get the storage for path
-	filesStorage, err := storage.Get(filesReq.UUID + "/" + filesReq.name)
+	filesStorage, err := storage.Get(filesReq.UUID)
 	if err != nil {
 		h.Write([]byte(fmt.Sprintf("{\"UUID\" : \"%s\",\"error\" : \"%s\"}",filesReq.UUID,err.Error())))
 		return 1
@@ -143,7 +143,7 @@ func getallfiles(e event.Event) uint32 {
 	//Get the serialized json from the response we created
 	filesResponseJson, err := filesResponse.MarshalJSON()
 	if err != nil {
-		h.Write([]byte(" { UUID : " + filesReq.UUID + ", Error : " + err.Error() + "}"))
+		h.Write([]byte(fmt.Sprintf("{\"UUID\" : \"%s\",\"error\" : \"%s\"}",filesReq.UUID,err.Error())))
 		return 1
 	}
 	
