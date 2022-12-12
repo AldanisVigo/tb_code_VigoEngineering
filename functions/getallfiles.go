@@ -119,7 +119,7 @@ func getallfiles(e event.Event) uint32 {
 		return 1
 	}
 
-	h.Write([]byte(fmt.Sprintf("{\"UUID\" : \"%s\",\"name\" : \"%s\"}",filesReq.UUID,filesReq.name)))
+	// h.Write([]byte(fmt.Sprintf("{\"UUID\" : \"%s\",\"name\" : \"%s\"}",filesReq.UUID,filesReq.name)))
 
 	//Get the storage for path
 	filesStorage, err := storage.Get(filesReq.UUID + "/" + filesReq.name)
