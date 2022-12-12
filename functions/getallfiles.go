@@ -121,7 +121,6 @@ func getallfiles(e event.Event) uint32 {
 
 	h.Write([]byte(fmt.Sprintf("{\"UUID\" : \"%s\",\"name\" : \"%s\"}",filesReq.UUID,filesReq.name)))
 
-
 	//Get the storage for path
 	filesStorage, err := storage.Get(filesReq.UUID + "/" + filesReq.name)
 	if err != nil {
@@ -156,21 +155,21 @@ func getallfiles(e event.Event) uint32 {
 	}
 
 	//Attach the files to the response
-	filesResponse := &FilesResponse{
-		UUID: filesReq.UUID,
-		name : filesReq.name,
-		files : string(lastFileContents),
-	}
+	// filesResponse := &FilesResponse{
+	// 	UUID: filesReq.UUID,
+	// 	name : filesReq.name,
+	// 	files : string(lastFileContents),
+	// }
 	
-	// //Get the serialized json from the response we created
-	filesResponseJson, err := filesResponse.MarshalJSON()
-	if err != nil {
-		h.Write([]byte(fmt.Sprintf("{\"UUID\" : \"%s\",\"error\" : \"%s\"}",filesReq.UUID,err.Error())))
-		return 1
-	}
+	// // //Get the serialized json from the response we created
+	// filesResponseJson, err := filesResponse.MarshalJSON()
+	// if err != nil {
+	// 	h.Write([]byte(fmt.Sprintf("{\"UUID\" : \"%s\",\"error\" : \"%s\"}",filesReq.UUID,err.Error())))
+	// 	return 1
+	// }
 	
 	//Return a response to the caller
-	w,err := h.Write([]byte(filesResponseJson))
+	w,err := h.Write([]byte(fmt.Sprintf("{ \"path\" : \"%s\" \"file\" : \"%s\" }",filesReq.name,lastFileContents)))
 	if err != nil {
 		return 1
 	}
