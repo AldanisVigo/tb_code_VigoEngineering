@@ -109,61 +109,52 @@ func getallfiles(e event.Event) uint32 {
 		return 1
 	}
 
-	//Create an empty user
-	incomingAllFilesRequest := &FilesRequest{}
-
-	//Fill it with the unmarshalled json version of the body data
-	err = incomingAllFilesRequest.UnmarshalJSON(allFilesRequestBody)
-	if err != nil{
-		h.Write([]byte("{ UUID: " + incomingAllFilesRequest.UUID + ", ERROR: " + err.Error()))
-		return 1
-	}
-
+	//Create an empty file request
 	filesReq := &FilesRequest{}
+
+	//Fill it in with the data from the request body
 	err = getFileRequestFromJson(string(allFilesRequestBody),filesReq)
 	if err != nil {
 		h.Write([]byte("\"error\":\"" + err.Error() + "\""))
 		return 1
 	}
 
-	h.Write([]byte(fmt.Sprintf("{\"UUID\" : \"%s\",\"name\" : \"%s\"}",filesReq.UUID,filesReq.name)))
+	//Get the storage for path
+	filesStorage, err := storage.Get(filesReq.UUID + "/" + filesReq.name)
+	if err != nil {
+		h.Write([]byte(fmt.Sprintf("{\"UUID\" : \"%s\",\"error\" : \"%s\"}",filesReq.UUID,err.Error())))
+		return 1
+	}
 
-	// //Get the storage for path
-	// filesStorage, err := storage.Get(incomingAllFilesRequest.UUID + "/" + incomingAllFilesRequest.name)
-	// if err != nil {
-	// 	h.Write([]byte("{ UUID : " + incomingAllFilesRequest.UUID + ", Error : " + err.Error() + "}"))
-	// 	return 1
-	// }
+	//Get the files from the storage at that path
+	files, err := filesStorage.ListFiles()
+	if err != nil {
+		h.Write([]byte(fmt.Sprintf("{\"UUID\" : \"%s\",\"error\" : \"%s\"}",filesReq.UUID,err.Error())))
+		return 1
+	}
 
-	// //Get the files from the storage at that path
-	// files, err := filesStorage.ListFiles()
-	// if err != nil {
-	// 	h.Write([]byte(" { UUID : " + incomingAllFilesRequest.UUID + ", Error : " + err.Error() + "}"))
-	// 	return 1
-	// }
-
-	// //Attach the files to the response
-	// filesResponse := &FilesResponse{
-	// 	UUID: incomingAllFilesRequest.UUID,
-	// 	name : incomingAllFilesRequest.name,
-	// 	files : files,
-	// }
+	//Attach the files to the response
+	filesResponse := &FilesResponse{
+		UUID: filesReq.UUID,
+		name : filesReq.name,
+		files : files,
+	}
 	
-	// //Get the serialized json from the response we created
-	// filesResponseJson, err := filesResponse.MarshalJSON()
-	// if err != nil {
-	// 	h.Write([]byte(" { UUID : " + incomingAllFilesRequest.UUID + ", Error : " + err.Error() + "}"))
-	// 	return 1
-	// }
+	//Get the serialized json from the response we created
+	filesResponseJson, err := filesResponse.MarshalJSON()
+	if err != nil {
+		h.Write([]byte(" { UUID : " + filesReq.UUID + ", Error : " + err.Error() + "}"))
+		return 1
+	}
 	
-	// //Return a response to the caller
-	// w,err := h.Write([]byte(filesResponseJson))
-	// if err != nil {
-	// 	return 1
-	// }
+	//Return a response to the caller
+	w,err := h.Write([]byte(filesResponseJson))
+	if err != nil {
+		return 1
+	}
 
-	// //Print results of calling Write
-	// fmt.Print(w)
+	//Print results of calling Write
+	fmt.Print(w)
 	
   	return 0
 }
