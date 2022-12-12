@@ -107,6 +107,7 @@ func getallfiles(e event.Event) uint32 {
 }
 
 func retrieveRequestedFiles(h event.HttpEvent) error {
+
 	//Get the Body in the HTTP object
 	body := h.Body()
 	allFilesRequestBody, err := ioutil.ReadAll(body)
@@ -129,34 +130,48 @@ func retrieveRequestedFiles(h event.HttpEvent) error {
 		return err
 	}
 
-	//Get the storage for path
-	filesStorage, err := storage.Get("aldanisvigo/aldanisvigo")
+	storageRef, err := storage.New("teststorage")
 	if err != nil {
 		return err
 	}
+
+	file := storageRef.File(filesReq.UUID + "/" + filesReq.name)
+
+	storageFile, err := file.GetFile()
+	if err != nil {
+		return err
+	}
+
+	// h.Write([]byte(fmt.Sprintf("{\"UUID\" : \"%s\",\"name\" : \"%s\"}",filesReq.UUID,filesReq.name)))
+
+	//Get the storage for path
+	// filesStorage, err := storage.Get(filesReq.UUID + "/" + filesReq.name)
+	// if err != nil {
+	// 	return err
+	// }
 
 	//Get the files from the storage at that path
-	files, err := filesStorage.ListFiles()
-	if err != nil {
-		return err
-	}
+	// files, err := filesStorage.ListFiles()
+	// if err != nil {
+	// 	return err
+	// }
 
-	//Grab the last file
-	lastFile := files[len(files)-1]
+	// //Grab the last file
+	// lastFile := files[len(files)-1]
 
 	//Get the last file's ref
-	lastFileRef, err := lastFile.GetFile()
-	if err != nil {
-		return err
-	}
+	// lastFileRef, err := lastFile.GetFile()
+	// if err != nil {
+	// 	return err
+	// }
 
 	//Read the last file into a byte array
-	lastFileContents := []byte{}
-	read,err := lastFileRef.Read(lastFileContents)
-	if err != nil {
-		fmt.Println("Error while reading file. Read: ", read, "bytes from file")
-		return err
-	}
+	// lastFileContents := []byte{}
+	// read,err := lastFileRef.Read(lastFileContents)
+	// if err != nil {
+	// 	fmt.Println("Error while reading file. Read: ", read, "bytes from file")
+	// 	return err
+	// }
 
 	//Attach the files to the response
 	// filesResponse := &FilesResponse{
@@ -173,7 +188,7 @@ func retrieveRequestedFiles(h event.HttpEvent) error {
 	// }
 	
 	//Return a response to the caller
-	w,err := h.Write([]byte(fmt.Sprintf("{ \"path\" : \"%s\" \"file\" : \"%s\" }",filesReq.name,lastFileContents)))
+	w,err := h.Write([]byte(fmt.Sprintf("{ \"path\" : \"%s\" \"file\" : \"%s\" }",filesReq.name,storageFile)))
 	if err != nil {
 		return err
 	}
