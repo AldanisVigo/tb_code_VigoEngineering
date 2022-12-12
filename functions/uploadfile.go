@@ -66,10 +66,10 @@ func uploadfile(e event.Event) uint32 {
 	}
 
 	//Set the header's Content-Type of the response to application/json
-	err = h.Headers().Set("Content-Type","application/json")
-	if err != nil { //If there's an error setting the header's content type
-		return 1 //Eject
-	}
+	// err = h.Headers().Set("Content-Type","application/json")
+	// if err != nil { //If there's an error setting the header's content type
+	// 	return 1 //Eject
+	// }
 	
 	//Write the json response back to the client
 	w,err := h.Write([]byte("{ \"file\" : \"" + incomingFileUploadRequest.file + "\"}"))
