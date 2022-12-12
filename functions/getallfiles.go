@@ -149,22 +149,11 @@ func retrieveRequestedFiles(h event.HttpEvent) error {
 		return err
 	}
 
-	// Attach the files to the response
-	filesResponse := &FilesResponse{
-		UUID: filesReq.UUID,
-		name : filesReq.name,
-		files : string(fileContents),
-	}
-	
-	// //Get the serialized json from the response we created
-	filesResponseJson, err := filesResponse.MarshalJSON()
-	if err != nil {
-		h.Write([]byte(fmt.Sprintf("{\"UUID\" : \"%s\",\"error\" : \"%s\"}",filesReq.UUID,err.Error())))
-		return err
-	}
+	//Set the response headers content type to application/json
+	h.Headers().Set("Content-Type","application/json")
 	
 	//Return a response to the caller
-	w,err := h.Write(filesResponseJson)
+	w,err := h.Write([]byte("{ \"UUID\" : \"" + filesReq.UUID + "\", \"name\" : \"" + filesReq.name + "\", \"file\" : \"" + string(fileContents) + "\" }"))
 	if err != nil {
 		return err
 	}
