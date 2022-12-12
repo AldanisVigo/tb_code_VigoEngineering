@@ -66,37 +66,37 @@ func uploadfile(e event.Event) uint32 {
 	}
 
 	//Set the header's Content-Type of the response to application/json
-	// err = h.Headers().Set("Content-Type","application/json")
-	// if err != nil { //If there's an error setting the header's content type
-	// 	return 1 //Eject
-	// }
+	err = h.Headers().Set("Content-Type","application/json")
+	if err != nil { //If there's an error setting the header's content type
+		return 1 //Eject
+	}
 	
 	//Write the json response back to the client
 	w,err := h.Write([]byte("{ \"file\" : \"" + incomingFileUploadRequest.file + "\"}"))
 	fmt.Print(w)
 
-	// //Save the file in the json request to the file storage at the uuid/name/file path
-	file := testStorage.File(incomingFileUploadRequest.UUID + "/" + incomingFileUploadRequest.UUID + "/" + incomingFileUploadRequest.filePath)
+	// // //Save the file in the json request to the file storage at the uuid/name/file path
+	// file := testStorage.File(incomingFileUploadRequest.UUID + "/" + incomingFileUploadRequest.UUID + "/" + incomingFileUploadRequest.filePath)
 	
-	// //Add the file and get the version of the file
-	version , err := file.Add([]byte(incomingFileUploadRequest.file), true)
-	if err != nil { //If there's an error while adding the file to the storage
-		//Write a response to the client letting them know about the error
-		h.Write([]byte("{ \"error\" : \"" + err.Error() + "\", \"msg\" : \"There was an error adding the file to the test storage in the dFunction.\"}"))
-		return 1 //Eject
-	}
+	// // //Add the file and get the version of the file
+	// version , err := file.Add([]byte(incomingFileUploadRequest.file), true)
+	// if err != nil { //If there's an error while adding the file to the storage
+	// 	//Write a response to the client letting them know about the error
+	// 	h.Write([]byte("{ \"error\" : \"" + err.Error() + "\", \"msg\" : \"There was an error adding the file to the test storage in the dFunction.\"}"))
+	// 	return 1 //Eject
+	// }
 
-	//Print the version of the file
-	fmt.Print(version)
+	// //Print the version of the file
+	// fmt.Print(version)
 	
-	//Return a response to the caller
-	w, err = h.Write([]byte("{ \"UUID\" : \"" + incomingFileUploadRequest.UUID + "\" , \"filename\" : \"" + incomingFileUploadRequest.filePath + "\",\"file_uploaded\" : true }"))
-	if err != nil { //If there's an error while writing a response back 
-		fmt.Print(err) //Print the error
-	}
+	// //Return a response to the caller
+	// w, err = h.Write([]byte("{ \"UUID\" : \"" + incomingFileUploadRequest.UUID + "\" , \"filename\" : \"" + incomingFileUploadRequest.filePath + "\",\"file_uploaded\" : true }"))
+	// if err != nil { //If there's an error while writing a response back 
+	// 	fmt.Print(err) //Print the error
+	// }
 
-	// //Print the result of writing a response
-	fmt.Print(w)
+	// // //Print the result of writing a response
+	// fmt.Print(w)
 
 	//Successful operation
   	return 0
