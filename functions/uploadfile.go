@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 
 	"bitbucket.org/taubyte/go-sdk/event"
-	"bitbucket.org/taubyte/go-sdk/storage"
 )
 
 //go:generate go get github.com/mailru/easyjson
@@ -30,12 +29,12 @@ func uploadfile(e event.Event) uint32 {
 	}
 
 	// //Get a reference to our existing storage bucket
-	testStorage, err := storage.New("teststorage")
-	if err != nil { //If there's an error
-		//Write a response to the client with the error
-		h.Write([]byte("{ \"error\": \"" + err.Error() + "\", \"msg\" : \"There was an rerror opening the test storage in the dFunction.\"}"))
-		return 1 //Eject
-	}
+	// testStorage, err := storage.New("teststorage")
+	// if err != nil { //If there's an error
+	// 	//Write a response to the client with the error
+	// 	h.Write([]byte("{ \"error\": \"" + err.Error() + "\", \"msg\" : \"There was an rerror opening the test storage in the dFunction.\"}"))
+	// 	return 1 //Eject
+	// }
 
 	//Get the Body in the HTTP object
 	body := h.Body()
