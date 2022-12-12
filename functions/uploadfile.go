@@ -125,9 +125,10 @@ func uploadfile(e event.Event) uint32 {
 	}
 	
 	//Write the json response back to the client
-	w,err := h.Write([]byte("{ \"UUID\" : \"" + req.UUID + "\", \"path\" : \"" + req.filePath +"\", \"file\" : \"" + req.file + "\"}"))
-	fmt.Print(w)
-
+	// w,err := h.Write([]byte("{ \"UUID\" : \"" + req.UUID + "\", \"path\" : \"" + req.filePath +"\", \"file\" : \"" + req.file + "\"}"))
+	// fmt.Print(w)
+	w,err := h.Write([]byte(fmt.Sprintf("{ UUID : %s, filePath : %s, file : %s }", req.UUID, req.filePath,req.file)))
+	fmt.Println(w)
 	// // //Save the file in the json request to the file storage at the uuid/name/file path
 	// file := testStorage.File(incomingFileUploadRequest.UUID + "/" + incomingFileUploadRequest.UUID + "/" + incomingFileUploadRequest.filePath)
 	
