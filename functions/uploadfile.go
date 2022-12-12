@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"bitbucket.org/taubyte/go-sdk/event"
+	"bitbucket.org/taubyte/go-sdk/storage"
 )
 
 //go:generate go get github.com/mailru/easyjson
@@ -92,15 +93,16 @@ func uploadfile(e event.Event) uint32 {
 	}
 
 	// //Get a reference to our existing storage bucket
-	// testStorage, err := storage.New("teststorage")
-	// if err != nil { //If there's an error
-	// 	//Write a response to the client with the error
-	// 	h.Write([]byte("{ \"error\": \"" + err.Error() + "\", \"msg\" : \"There was an rerror opening the test storage in the dFunction.\"}"))
-	// 	return 1 //Eject
-	// }
+	testStorage, err := storage.New("teststorage")
+	if err != nil { //If there's an error
+		//Write a response to the client with the error
+		h.Write([]byte("{ \"error\": \"" + err.Error() + "\", \"msg\" : \"There was an rerror opening the test storage in the dFunction.\"}"))
+		return 1 //Eject
+	}
 
 	//Get the Body in the HTTP object
 	body := h.Body()
+	
 	//Read the contents of the body of the request
 	fileUploadRequestContents, err := ioutil.ReadAll(body)
 	if err != nil { //If there's an error while reading
@@ -133,41 +135,38 @@ func uploadfile(e event.Event) uint32 {
 	// 	return 1 //Eject
 	// }
 
+	//Create an empty FileUploadRequest
 	req := &FileUploadRequest{}
 
+	//Fill it up with stuff from the fileUploadRequestContents
 	err = getFileUploadRequestFromJson(string(fileUploadRequestContents),req)
 	if err != nil {
 		h.Write([]byte("{ \"error\" : \"" +  err.Error() + "\" }"))
 		return 1
 	}
 	
-	//Write the json response back to the client
-	// w,err := h.Write([]byte("{ \"UUID\" : \"" + req.UUID + "\", \"path\" : \"" + req.filePath +"\", \"file\" : \"" + req.file + "\"}"))
-	// fmt.Print(w)
-	w,err := h.Write([]byte(fmt.Sprintf("{ \"UUID\" : \"%s\", \"filePath\" : %s, \"file\" : \"%s\" }", req.UUID, req.filePath,req.file)))
-	fmt.Println(w)
-	// // //Save the file in the json request to the file storage at the uuid/name/file path
-	// file := testStorage.File(incomingFileUploadRequest.UUID + "/" + incomingFileUploadRequest.UUID + "/" + incomingFileUploadRequest.filePath)
+	//Save the file in the json request to the file storage at the uuid/name/file path
+	file := testStorage.File(req.UUID + "/" + req.filePath)
 	
-	// // //Add the file and get the version of the file
-	// version , err := file.Add([]byte(incomingFileUploadRequest.file), true)
-	// if err != nil { //If there's an error while adding the file to the storage
-	// 	//Write a response to the client letting them know about the error
-	// 	h.Write([]byte("{ \"error\" : \"" + err.Error() + "\", \"msg\" : \"There was an error adding the file to the test storage in the dFunction.\"}"))
-	// 	return 1 //Eject
-	// }
+	//Add the file and get the version of the file
+	version , err := file.Add([]byte(req.file), true)
+	if err != nil { //If there's an error while adding the file to the storage
+		//Write a response to the client letting them know about the error
+		h.Write([]byte("{ \"error\" : \"" + err.Error() + "\", \"msg\" : \"There was an error adding the file to the test storage in the dFunction.\"}"))
+		return 1 //Eject
+	}
 
-	// //Print the version of the file
-	// fmt.Print(version)
+	//Print the version of the file
+	fmt.Print(version)
 	
-	// //Return a response to the caller
-	// w, err = h.Write([]byte("{ \"UUID\" : \"" + incomingFileUploadRequest.UUID + "\" , \"filename\" : \"" + incomingFileUploadRequest.filePath + "\",\"file_uploaded\" : true }"))
-	// if err != nil { //If there's an error while writing a response back 
-	// 	fmt.Print(err) //Print the error
-	// }
+	//Return a response to the caller
+	w, err := h.Write([]byte("{ \"UUID\" : \"" + req.UUID + "\" , \"filename\" : \"" + req.filePath + "\",\"file_uploaded\" : true }"))
+	if err != nil { //If there's an error while writing a response back 
+		fmt.Print(err) //Print the error
+	}
 
-	// // //Print the result of writing a response
-	// fmt.Print(w)
+	//Print the result of writing a response
+	fmt.Print(w)
 
 	//Successful operation
   	return 0
