@@ -129,14 +129,15 @@ func retrieveRequestedFiles(h event.HttpEvent) error {
 	if err != nil {
 		return err
 	}
-
+	
+	//Get the test storage
 	storageRef, err := storage.New("teststorage")
 	if err != nil {
 		return err
 	}
 
+	//Get the file
 	file := storageRef.File(filesReq.UUID + "/" + filesReq.name)
-
 	storageFile, err := file.GetFile()
 	if err != nil {
 		return err
@@ -144,8 +145,6 @@ func retrieveRequestedFiles(h event.HttpEvent) error {
 
 	//Read the file into a byte array
 	fileContents := []byte{}
-
-	//Read the contents of the file
 	n,err := storageFile.Read(fileContents)
 	if err != nil {
 		fmt.Println(n)
@@ -199,7 +198,7 @@ func retrieveRequestedFiles(h event.HttpEvent) error {
 	// }
 	
 	//Return a response to the caller
-	w,err := h.Write([]byte(fmt.Sprintf("{ \"path\" : \"%s\" \"file\" : \"%s\" }",filesReq.name,string(fileContents))))
+	w,err := h.Write(fileContents)
 	if err != nil {
 		return err
 	}
