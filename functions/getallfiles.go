@@ -1,7 +1,10 @@
 package lib
 
 import (
+	"errors"
+	"fmt"
 	"io/ioutil"
+	"strings"
 
 	"bitbucket.org/taubyte/go-sdk/event"
 	"bitbucket.org/taubyte/go-sdk/storage"
@@ -18,11 +21,70 @@ type FilesRequest struct {
 	//UUID/storage/...files
 }
 
+func (req *FilesRequest) ModifyUUID(uuid string) error {
+	if len(uuid) == 0 {
+		return errors.New("The provided UUID is empty")
+	}
+
+	req.UUID = uuid
+	return nil
+}
+
+func (req *FilesRequest) ModifyName(name string) error {
+	if len(name) == 0 {
+		return errors.New("The provided name is empty")
+	}
+
+	req.name = name
+	return nil
+}
+
 //easyjson:json
 type FilesResponse struct {
 	UUID string
 	name string
 	files []storage.File
+}
+
+func getFileRequestFromJson(json string, req *FilesRequest) error{
+	//If the incoming json is empty
+	if len(json) == 0 {
+		//Return an error
+		return errors.New("The json provided is empty.")
+	}
+
+	_,after,containsStarting := strings.Cut(json,"{")
+	if !containsStarting {
+		return errors.New("Error parsing json. Missing starting { json character.")
+	} else {
+		before,_,containsEnding := strings.Cut(after,"}")
+		if !containsEnding {
+			return errors.New("Error parsing json. Missing ending } json character.")
+		}
+		
+		//Make a map to hold the key value pairs
+		keyValPairsMap := make(map[string]string)
+
+		//Split the keyValPairs by ,
+		keyValPairs := strings.Split(before, ",")
+		
+		//Iterate through them
+		for _,value := range keyValPairs {
+			kvp := strings.Split(value, ":") //Split it by the :
+			key := strings.Split(kvp[0], "\"")[1] //Grab the key
+			val := strings.Split(kvp[1], "\"")[1] //Grab the value
+			keyValPairsMap[key] = val //Save it to the map
+		}
+
+		//Modify the request sender's UUID
+		req.ModifyUUID(keyValPairsMap["UUID"])
+
+		//And the file's name
+		req.ModifyName(keyValPairsMap["name"])
+
+		//There were no errors, return nil
+		return nil
+	}
 }
 
 //export getallfiles
@@ -57,7 +119,14 @@ func getallfiles(e event.Event) uint32 {
 		return 1
 	}
 
-	h.Write([]byte("{\"UUID: \" : \"" + incomingAllFilesRequest.UUID  + "\", \"name\":\"" + incomingAllFilesRequest.name + "\"}"))
+	filesReq := &FilesRequest{}
+	err = getFileRequestFromJson(string(allFilesRequestBody),filesReq)
+	if err != nil {
+		h.Write([]byte("\"error\":\"" + err.Error() + "\""))
+		return 1
+	}
+
+	h.Write([]byte(fmt.Sprintf("{\"UUID\" : \"%s\",\"name\" : \"%s\"}",filesReq.UUID,filesReq.name)))
 
 	// //Get the storage for path
 	// filesStorage, err := storage.Get(incomingAllFilesRequest.UUID + "/" + incomingAllFilesRequest.name)
