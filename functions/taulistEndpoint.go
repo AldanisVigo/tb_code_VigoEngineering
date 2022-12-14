@@ -43,8 +43,14 @@ func retrieveQueries(h event.HttpEvent) error {
 	//Get the queries from the http event
 	queries := h.Query()
 	
-	//Send the queries back to the client
-	_,err := h.Write([]byte(queries))
+	//Get the endpoint key value
+	endpoint,err := queries.Get("endpoint")
+	if err != nil {
+		return err
+	}
+
+	//Send the endpoint query back to the client
+	_,err := h.Write([]byte(endpoint))
 	if err != nil {
 		return err
 	}
