@@ -91,14 +91,14 @@ func retrieveQueryParams(h event.HttpEvent) error {
 			return nil
 	}
 
-	//Send the endpoint query back to the client
-	_,err = h.Write([]byte(endpoint))
-	if err != nil {
-		return err
-	}
+	// //Send the endpoint query back to the client
+	// _,err = h.Write([]byte(endpoint))
+	// if err != nil {
+	// 	return err
+	// }
 
 	//Execution successful, return nil for the error
-	return nil
+	// return nil
 }
 
 //easyjson:json
@@ -123,7 +123,7 @@ func serializeCategoriesJson(json string,catList *CategoriesList) error {
 		//Return an error letting the user know that their json is empty
 		return errors.New("Error serializing the categories json to a CategoriesList instance: The json provided was empty.")
 	}
-	
+
 	// _,after,containsOpening := strings.Cut(json,"{")
 	// if !containsOpening { //If we don't detect the { opening character for the expected json structure
 	// 	//Generate and return a new error explaining the situation
