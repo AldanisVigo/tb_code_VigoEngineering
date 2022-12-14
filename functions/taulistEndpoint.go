@@ -6,8 +6,8 @@ import (
 	"bitbucket.org/taubyte/go-sdk/event"
 )
 
-//export taulistEndpoint
-func taulistEndpoint(e event.Event) uint32 {
+//export taulistendpoint
+func taulistendpoint(e event.Event) uint32 {
 	//Get the HTTP request
 	h,err := e.HTTP()	
 	if err != nil { //If we have an error getting the HTTP request
