@@ -6,6 +6,10 @@ import (
 	"bitbucket.org/taubyte/go-sdk/event"
 )
 
+//go:generate go get github.com/mailru/easyjson
+//go:generate go install github.com/mailru/easyjson/...@latest
+//go:generate easyjson -all ${GOFILE}
+
 //export taulistendpoint
 func taulistendpoint(e event.Event) uint32 {
 	//Get the HTTP request
