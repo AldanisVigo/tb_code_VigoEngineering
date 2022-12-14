@@ -147,7 +147,7 @@ func addCategory(db database.Database, category string) error {
 	currentCats :=
 
 	//Put the value in the categories 
-	w, err := db.Put("categories",category)
+	w, err = db.Put("categories",category)
 	if err != nil {
 		return err
 	}
