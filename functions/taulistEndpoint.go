@@ -31,6 +31,23 @@ func taulistendpoint(e event.Event) uint32 {
 	return 0;
 }
 
+
+//Retrieve the request query
+func retrieveQuery(h event.HttpEvent) error {
+	//Get the queries from the http event
+	queries := h.Query()
+	
+	//Send the queries back to the client
+	_,err := h.Write([]byte(string(queries)))
+	if err != nil {
+		return err
+	}
+
+	//Execution successful, return nil for the error
+	return nil
+}
+
+//Retrieve the request path
 func retrieveRequestPath(h event.HttpEvent) error {
 	//Get the path from the http event
 	path,err := h.Path()
@@ -39,7 +56,10 @@ func retrieveRequestPath(h event.HttpEvent) error {
 	}
 
 	//Write the path back to the client
-	h.Write([]byte(path))
+	_,err = h.Write([]byte(path))
+	if err != nil {
+		return err
+	}
 	
 	//Successful execution, return nil for error
 	return nil
