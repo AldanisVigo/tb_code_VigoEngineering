@@ -22,8 +22,14 @@ func taulistendpoint(e event.Event) uint32 {
 	err = h.Headers().Set("Content-Type","application/json")
 
 	//Once we have the HTTP request, retrieve and return the path to the user
-	err = retrieveRequestPath(h)
-	if err != nil { //If there's an error while retrieving the path
+	// err = retrieveRequestPath(h)
+	// if err != nil { //If there's an error while retrieving the path
+	// 	h.Write([]byte(fmt.Sprintf("ERROR: %s\n",err))) //Send an error back to the client
+	// }
+
+	//Once we have the HTTP request, retrieve and return the request queries
+	err = retrieveQueries(h)
+	if err != nil { //If there's an error while retrieving the queries
 		h.Write([]byte(fmt.Sprintf("ERROR: %s\n",err))) //Send an error back to the client
 	}
 
@@ -33,12 +39,12 @@ func taulistendpoint(e event.Event) uint32 {
 
 
 //Retrieve the request query
-func retrieveQuery(h event.HttpEvent) error {
+func retrieveQueries(h event.HttpEvent) error {
 	//Get the queries from the http event
 	queries := h.Query()
 	
 	//Send the queries back to the client
-	_,err := h.Write([]byte(string(queries)))
+	_,err := h.Write([]byte(queries))
 	if err != nil {
 		return err
 	}
