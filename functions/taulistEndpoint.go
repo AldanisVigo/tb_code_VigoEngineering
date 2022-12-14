@@ -97,7 +97,7 @@ func retrieveQueryParams(h event.HttpEvent) error {
 
 //easyjson:json
 type CategoriesList struct {
-	[]string categories
+	categories []string
 }
 
 func (cl *CategoryList) ModifyCategories(newCategories []string){
