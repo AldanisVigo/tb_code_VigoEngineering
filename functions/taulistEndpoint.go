@@ -60,10 +60,29 @@ func retrieveQueryParams(h event.HttpEvent) error {
 
 	switch endpoint { 
 		case "categories":
+			//Retrieve the categories from the database
 			cats,err := retrieveCategories(db)
-			break
+			if err != nil { //If there's an error retrieving the categories from the database
+				return err //Return the error
+			}
+
+			//Send the categories back to the client
+			_,err = h.Write([]byte(cats))
+			if err != nil { //If there's an error sending the categories to the client
+				return err //Return the error
+			}
+			
+			//Execution succeeded, return nil for error
+			return nil
 		default:
-			break
+			//Send an empty json object back to the client
+			_,err = h.Write([]byte("{}"))
+			if err != nil { //If there's an error writing the json back to the client
+				return err //Return the error
+			}
+			
+			//Execution succeeded, return nil for error
+			return nil
 	}
 
 	//Send the endpoint query back to the client
