@@ -1,8 +1,10 @@
 package lib
 
 import (
+	"errors"
 	"fmt"
 
+	"bitbucket.org/taubyte/go-sdk/database"
 	"bitbucket.org/taubyte/go-sdk/event"
 )
 
@@ -28,7 +30,7 @@ func taulistendpoint(e event.Event) uint32 {
 	// }
 
 	//Once we have the HTTP request, retrieve and return the request queries
-	err = retrieveQueries(h)
+	err = retrieveQueryParams(h)
 	if err != nil { //If there's an error while retrieving the queries
 		h.Write([]byte(fmt.Sprintf("ERROR: %s\n",err))) //Send an error back to the client
 	}
@@ -38,8 +40,8 @@ func taulistendpoint(e event.Event) uint32 {
 }
 
 
-//Retrieve the request query
-func retrieveQueries(h event.HttpEvent) error {
+//Retrieve the params from the request query
+func retrieveQueryParams(h event.HttpEvent) error {
 	//Get the queries from the http event
 	queries := h.Query()
 	
@@ -49,8 +51,84 @@ func retrieveQueries(h event.HttpEvent) error {
 		return err
 	}
 
+	//If the length of the endpoint param is 0
+	if len(endpoint) == 0 {
+		//Return a new error letting the user know what happened
+		return errors.New("You must include an endpoint query parameter with your request.")
+	}
+
+
+	switch endpoint { 
+		case "categories":
+			cats,err := retrieveCategories(db)
+			break
+		default:
+			break
+	}
+
 	//Send the endpoint query back to the client
 	_,err = h.Write([]byte(endpoint))
+	if err != nil {
+		return err
+	}
+
+	//Execution successful, return nil for the error
+	return nil
+}
+
+//easyjson:json
+type CategoriesList struct {
+	[]string categories
+}
+
+func (cl *CategoryList) ModifyCategories(newCategories []string){
+	cl.categories = newCategories
+}
+
+func serializeCategoriesJson(json string,catList *CategoriesList) error {
+	if len(json) == 0 { //If the length of the provided json is 0
+		//Return an error letting the user know that their json is empty
+		return errors.New("Error serializing the categories json to a CategoriesList instance: The json provided was empty.")
+	}
+
+	_,after,containsOpening := strings.Cut(json,"{")
+	if !containsOpening {
+		return errors.New("Error serializing the categories json to a CategoryList instance: The json provided is missing the opening {")
+	}else{
+		before,_,containsClosing := strings.Cut(after,"}")
+		if !containsClosing {
+			return errors.New("Error serializing the categories json to a CategoryList instance: The json provided is missing the closing }")
+		}
+		keyValPairsWithColon,err := strings.Split(before,":")
+		
+	}
+
+}
+
+//Retrieve all categories stored in the taulist database
+func retrieveCategories(db database.Database) ([]byte, error) {
+	//Get the json data in the categories
+	cats, err := db.Get("categories")
+	if err != nil {
+		return nil, err
+	}
+
+	if len(cats) == 0 { //If there's no cats
+		//Return an empty json object, and nil for the error
+		return []byte("{}"), nil
+	}
+
+	//Execution successful, return nil for the error
+	return cats, nil
+}
+
+//Add a category to the taulist databse
+func addCategory(db database.Database, category string) error {
+	//Retrieve the vales of the categories
+	currentCats :=
+
+	//Put the value in the categories 
+	w, err := db.Put("categories",category)
 	if err != nil {
 		return err
 	}
