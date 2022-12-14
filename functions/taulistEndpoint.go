@@ -50,7 +50,7 @@ func retrieveQueries(h event.HttpEvent) error {
 	}
 
 	//Send the endpoint query back to the client
-	_,err := h.Write([]byte(endpoint))
+	_,err = h.Write([]byte(endpoint))
 	if err != nil {
 		return err
 	}
