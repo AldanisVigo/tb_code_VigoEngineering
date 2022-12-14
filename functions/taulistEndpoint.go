@@ -57,6 +57,12 @@ func retrieveQueryParams(h event.HttpEvent) error {
 		return errors.New("You must include an endpoint query parameter with your request.")
 	}
 
+	//Get the database 
+	db, err := database.New("taulistdb")
+	if err != nil {
+		return err
+	}
+
 
 	switch endpoint { 
 		case "categories":
@@ -100,54 +106,86 @@ type CategoriesList struct {
 	categories []string
 }
 
-func (cl *CategoryList) ModifyCategories(newCategories []string){
+/*
+	ModifyCategories allows you to change the categories in the CategoriesList struct
+*/
+func (cl *CategoriesList) ModifyCategories(newCategories []string){
 	cl.categories = newCategories
 }
 
+
+/*
+	Given a json string, parse the json string and set the fields in the passed
+	CategoriesList Object
+*/
 func serializeCategoriesJson(json string,catList *CategoriesList) error {
 	if len(json) == 0 { //If the length of the provided json is 0
 		//Return an error letting the user know that their json is empty
 		return errors.New("Error serializing the categories json to a CategoriesList instance: The json provided was empty.")
 	}
-
-	_,after,containsOpening := strings.Cut(json,"{")
-	if !containsOpening {
-		return errors.New("Error serializing the categories json to a CategoryList instance: The json provided is missing the opening {")
-	}else{
-		before,_,containsClosing := strings.Cut(after,"}")
-		if !containsClosing {
-			return errors.New("Error serializing the categories json to a CategoryList instance: The json provided is missing the closing }")
-		}
-		keyValPairsWithColon,err := strings.Split(before,":")
+	
+	// _,after,containsOpening := strings.Cut(json,"{")
+	// if !containsOpening { //If we don't detect the { opening character for the expected json structure
+	// 	//Generate and return a new error explaining the situation
+	// 	return errors.New("Error serializing the categories json to a CategoryList instance: The json provided is missing the opening {")
+	// }else{ //Otherwise split again by the closing character } and only grab everything before it
+	// 	before,_,containsClosing := strings.Cut(after,"}")
+	// 	if !containsClosing {//If we're not able to find the closing } character
+	// 		//Generate and return a new error explaining the situation
+	// 		return errors.New("Error serializing the categories json to a CategoryList instance: The json provided is missing the closing }")
+	// 	}
 		
-	}
+	// 	//Get the key value pairs by splitting by the , character to separate the list of key:value,key:value
+	// 	keyValPairsWithColon := strings.Split(before,",")
 
+	// 	//Iterate through the keyValuePairsWithColon
+	// 	for _,value := range keyValPairsWithColon {
+	// 		//Grab the key
+	// 		key := strings.Split(value,":")[0]
+
+	// 		//And grab the value
+	// 		value := strings.Split(value,":")[1]
+
+
+	// 	}
+	// }
+
+
+
+	return nil
 }
 
 //Retrieve all categories stored in the taulist database
-func retrieveCategories(db database.Database) ([]byte, error) {
+func retrieveCategories(db database.Database) (string, error) {
 	//Get the json data in the categories
 	cats, err := db.Get("categories")
 	if err != nil {
-		return nil, err
+		return "{}", err
 	}
 
 	if len(cats) == 0 { //If there's no cats
 		//Return an empty json object, and nil for the error
-		return []byte("{}"), nil
+		return "{}", nil
 	}
 
 	//Execution successful, return nil for the error
-	return cats, nil
+	return string(cats), nil
 }
 
 //Add a category to the taulist databse
 func addCategory(db database.Database, category string) error {
 	//Retrieve the vales of the categories
-	currentCats :=
+	currentCats,err := retrieveCategories(db)
+
+	//Create an empty categories list
+	catListObj := &CategoriesList{}
+
+	//TODO: Serialize the current categories into a CategoriesList object
+	serializeCategoriesJson(currentCats,catListObj)
+
 
 	//Put the value in the categories 
-	w, err = db.Put("categories",category)
+	err = db.Put("categories",[]byte(currentCats))
 	if err != nil {
 		return err
 	}
