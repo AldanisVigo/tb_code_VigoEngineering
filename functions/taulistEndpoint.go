@@ -163,7 +163,6 @@ func retrieveCategories(db database.Database) (string, error) {
 		}
 	}
 
-
 	if len(cats) == 0 { //If there's no cats
 		//Return an empty json object, and nil for the error
 		return "{}", nil
