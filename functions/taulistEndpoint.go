@@ -12,6 +12,11 @@ import (
 //go:generate go install github.com/mailru/easyjson/...@latest
 //go:generate easyjson -all ${GOFILE}
 
+//easyjson:json
+type CategoriesList struct {
+	categories []string
+}
+
 //export taulistendpoint
 func taulistendpoint(e event.Event) uint32 {
 	//Get the HTTP request
@@ -70,7 +75,6 @@ func retrieveQueryParams(h event.HttpEvent) error {
 			cats,err := retrieveCategories(db)
 			if err != nil { //If there's an error retrieving the categories from the database
 				return err //Return the error
-				err
 			}
 
 			//Send the categories back to the client
@@ -95,11 +99,6 @@ func retrieveQueryParams(h event.HttpEvent) error {
 			//Execution succeeded, return nil for error
 			return nil
 	}
-}
-
-//easyjson:json
-type CategoriesList struct {
-	categories []string
 }
 
 /*
