@@ -72,7 +72,7 @@ func retrieveQueryParams(h event.HttpEvent) error {
 	switch endpoint { 
 		case "categories":
 			//Retrieve the categories from the database
-			cats,err := retrieveCategories(db)
+			cats,err := retrieveCategories(&db)
 			if err != nil { //If there's an error retrieving the categories from the database
 				return err //Return the error
 			}
@@ -151,7 +151,7 @@ func serializeCategoriesJson(json string,catList *CategoriesList) error {
 }
 
 //Retrieve all categories stored in the taulist database
-func retrieveCategories(db database.Database) (string, error) {
+func retrieveCategories(db *database.Database) (string, error) {
 	//Get the json data in the categories
 	cats, err := db.Get("categories")
 	if err != nil {
@@ -172,7 +172,7 @@ func retrieveCategories(db database.Database) (string, error) {
 }
 
 //Add a category to the taulist databse
-func addCategory(db database.Database, category string) error {
+func addCategory(db *database.Database, category string) error {
 	//Retrieve the vales of the categories
 	currentCats,err := retrieveCategories(db)
 
