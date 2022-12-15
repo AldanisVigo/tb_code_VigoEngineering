@@ -70,6 +70,7 @@ func retrieveQueryParams(h event.HttpEvent) error {
 			cats,err := retrieveCategories(db)
 			if err != nil { //If there's an error retrieving the categories from the database
 				return err //Return the error
+				err
 			}
 
 			//Send the categories back to the client
@@ -78,6 +79,10 @@ func retrieveQueryParams(h event.HttpEvent) error {
 				return err //Return the error
 			}
 			
+			//Execution succeeded, return nil for error
+			return nil
+		case "addcategory":
+
 			//Execution succeeded, return nil for error
 			return nil
 		default:
@@ -90,15 +95,6 @@ func retrieveQueryParams(h event.HttpEvent) error {
 			//Execution succeeded, return nil for error
 			return nil
 	}
-
-	// //Send the endpoint query back to the client
-	// _,err = h.Write([]byte(endpoint))
-	// if err != nil {
-	// 	return err
-	// }
-
-	//Execution successful, return nil for the error
-	// return nil
 }
 
 //easyjson:json
@@ -160,7 +156,11 @@ func retrieveCategories(db database.Database) (string, error) {
 	//Get the json data in the categories
 	cats, err := db.Get("categories")
 	if err != nil {
-		return "{}", err
+		if err == errors.New("ERROR: Database get size failed with: ErrorDatabaseKeyNotFound") {
+			return "{}",nil
+		}else{
+			return "{}", err
+		}
 	}
 
 	if len(cats) == 0 { //If there's no cats
@@ -182,7 +182,6 @@ func addCategory(db database.Database, category string) error {
 
 	//TODO: Serialize the current categories into a CategoriesList object
 	serializeCategoriesJson(currentCats,catListObj)
-
 
 	//Put the value in the categories 
 	err = db.Put("categories",[]byte(currentCats))
