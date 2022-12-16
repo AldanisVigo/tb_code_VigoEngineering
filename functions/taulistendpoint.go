@@ -19,6 +19,13 @@ type CategoriesList struct {
 	categories []string
 }
 
+/*
+	ModifyCategories allows you to change the categories in the CategoriesList struct
+*/
+func (cl *CategoriesList) ModifyCategories(newCategories []string){
+	cl.categories = newCategories
+}
+
 //export taulistendpoint
 func taulistendpoint(e event.Event) uint32 {
 	//Get the HTTP request
@@ -88,17 +95,18 @@ func retrieveQueryParams(h event.HttpEvent) error {
 			//Execution succeeded, return nil for error
 			return nil
 		case "addcategory":
+			//Retrieve the query parameter for the category
 			cat,err := queries.Get("category")
-			if err != nil {
-				return err
-			}else{
-				err = addCategory(&db,cat)
-				if err != nil {
-					return err
+			if err != nil { //If there's an error pulling the query parameter for the category
+				return err //Return the error
+			}else{ //Otherwise
+				//Add the category to the category list
+				err = addCategory(&db,cat,&h)
+				if err != nil { //if there's an error while adding the category to the category list
+					return err //Return the error
 				}
 			}
 
-			// addCategory(&db,)
 			//Execution succeeded, return nil for error
 			return nil
 		default:
@@ -113,22 +121,29 @@ func retrieveQueryParams(h event.HttpEvent) error {
 	}
 }
 
-/*
-	ModifyCategories allows you to change the categories in the CategoriesList struct
-*/
-func (cl *CategoriesList) ModifyCategories(newCategories []string){
-	cl.categories = newCategories
-}
-
 
 /*
 	Given a json string, parse the json string and set the fields in the passed
 	CategoriesList Object
 */
-func serializeCategoriesJson(json string,catList *CategoriesList) error {
+func serializeCategoriesJson(json string,catList *CategoriesList,h *event.HttpEvent) error {
 	if len(json) == 0 { //If the length of the provided json is 0
 		//Return an error letting the user know that their json is empty
 		return errors.New("Error serializing the categories json to a CategoriesList instance: The json provided was empty.")
+	}
+
+	//Edge Case - MissingKey Error
+	if json == "{}" {
+		//Create an empty array of categories
+		emptyArray := []string{}
+		//Modify the catList's category list to it
+		catList.ModifyCategories(emptyArray)
+	}
+
+
+	_,err := h.Write([]byte(json))
+	if err != nil {
+		return err
 	}
 
 	// _,after,containsOpening := strings.Cut(json,"{")
@@ -166,14 +181,18 @@ func serializeCategoriesJson(json string,catList *CategoriesList) error {
 func retrieveCategories(db *database.Database) (string, error) {
 	//Get the json data in the categories
 	cats, err := db.Get("categories")
-	if err != nil {
-		var err0 errno.Error = errno.ErrorDatabaseKeyNotFound
-		err := fmt.Errorf("%s", err0)
-
-		if strings.Contains(err.Error(), err0.String()) {
-			return "{}", nil
+	if err != nil { //If there's an error
+		//Get the missing key error from errno
+		var missingKeyError errno.Error = errno.ErrorDatabaseKeyNotFound
+	
+		//If the generated error contains the ErrorDatabaseKeyNotFound error
+		if strings.Contains(err.Error(), missingKeyError.String()) {
+			return "{}", nil //Return an empty json object and nil for the error
 		}
-		return "{}", nil
+		
+		//For all other errors do the same thing for now
+		//TODO: Add more robust
+		return "{}", nil //Return an empty json object and nil for the error
 	}
 
 	if len(cats) == 0 { //If there's no cats
@@ -186,7 +205,7 @@ func retrieveCategories(db *database.Database) (string, error) {
 }
 
 //Add a category to the taulist databse
-func addCategory(db *database.Database, category string) error {
+func addCategory(db *database.Database, category string,h *event.HttpEvent) error {
 	//Retrieve the vales of the categories
 	currentCats,err := retrieveCategories(db)
 
@@ -194,7 +213,7 @@ func addCategory(db *database.Database, category string) error {
 	catListObj := &CategoriesList{}
 
 	//TODO: Serialize the current categories into a CategoriesList object
-	serializeCategoriesJson(currentCats,catListObj)
+	serializeCategoriesJson(currentCats,catListObj,h)
 
 	//Put the value in the categories 
 	err = db.Put("categories",[]byte(currentCats))
