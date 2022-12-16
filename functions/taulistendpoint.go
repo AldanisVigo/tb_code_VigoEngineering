@@ -3,8 +3,10 @@ package lib
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"bitbucket.org/taubyte/go-sdk/database"
+	"bitbucket.org/taubyte/go-sdk/errno"
 	"bitbucket.org/taubyte/go-sdk/event"
 )
 
@@ -155,7 +157,13 @@ func retrieveCategories(db *database.Database) (string, error) {
 	//Get the json data in the categories
 	cats, err := db.Get("categories")
 	if err != nil {
-		return "{}", err
+		var err0 errno.Error = errno.ErrorDatabaseKeyNotFound
+		err := fmt.Errorf("Something failed with: %s", err0)
+
+		if strings.Contains(err.Error(), err0.String()) {
+			return "{}", nil
+		}
+		return "{}", nil
 	}
 
 	if len(cats) == 0 { //If there's no cats
