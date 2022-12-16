@@ -88,7 +88,17 @@ func retrieveQueryParams(h event.HttpEvent) error {
 			//Execution succeeded, return nil for error
 			return nil
 		case "addcategory":
+			cat,err := queries.Get("category")
+			if err != nil {
+				return err
+			}else{
+				err = addCategory(&db,cat)
+				if err != nil {
+					return err
+				}
+			}
 
+			// addCategory(&db,)
 			//Execution succeeded, return nil for error
 			return nil
 		default:
@@ -158,7 +168,7 @@ func retrieveCategories(db *database.Database) (string, error) {
 	cats, err := db.Get("categories")
 	if err != nil {
 		var err0 errno.Error = errno.ErrorDatabaseKeyNotFound
-		err := fmt.Errorf("Something failed with: %s", err0)
+		err := fmt.Errorf("%s", err0)
 
 		if strings.Contains(err.Error(), err0.String()) {
 			return "{}", nil
