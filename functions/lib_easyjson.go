@@ -281,3 +281,62 @@ func (v *FileRequest) UnmarshalJSON(data []byte) error {
 func (v *FileRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjsonEc607727DecodeFunctionFunctions3(l, v)
 }
+func easyjsonEc607727DecodeFunctionFunctions4(in *jlexer.Lexer, out *CategoriesList) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjsonEc607727EncodeFunctionFunctions4(out *jwriter.Writer, in CategoriesList) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v CategoriesList) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjsonEc607727EncodeFunctionFunctions4(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v CategoriesList) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonEc607727EncodeFunctionFunctions4(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *CategoriesList) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjsonEc607727DecodeFunctionFunctions4(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *CategoriesList) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonEc607727DecodeFunctionFunctions4(l, v)
+}
