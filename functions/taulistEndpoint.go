@@ -167,7 +167,6 @@ func retrieveCategories(db *database.Database) (string, error) {
 		return "{}", nil
 	}
 
-
 	//Execution successful, return nil for the error
 	return string(cats), nil
 }
