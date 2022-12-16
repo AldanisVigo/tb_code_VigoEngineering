@@ -188,6 +188,7 @@ func addCategory(db *database.Database, category string) error {
 		return err
 	}
 
+
 	//Execution successful, return nil for the error
 	return nil
 }
