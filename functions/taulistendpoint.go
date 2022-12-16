@@ -155,7 +155,7 @@ func retrieveCategories(db *database.Database) (string, error) {
 	//Get the json data in the categories
 	cats, err := db.Get("categories")
 	if err != nil {
-		if err == errors.New("ERROR: Database get size failed with: ErrorDatabaseKeyNotFound") {
+		if err == errors.New("Database get size failed with: ErrorDatabaseKeyNotFound") {
 			return "{}",nil
 		}else{
 			return "{}", err
