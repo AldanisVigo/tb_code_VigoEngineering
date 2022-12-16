@@ -111,7 +111,7 @@ func retrieveQueryParams(h event.HttpEvent) error {
 			return nil
 		default:
 			//Send an empty json object back to the client
-			_,err = h.Write([]byte("{}"))
+			_,err = h.Write([]byte("{something}"))
 			if err != nil { //If there's an error writing the json back to the client
 				return err //Return the error
 			}
