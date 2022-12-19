@@ -137,7 +137,7 @@ func addCategory(h event.HttpEvent) error {
 	}
 
 	// Add the new category at the next available key value
-	// cats.Categories[len(cats.Categories) + 1] = incomingCategoryRequest.Category
+	cats.Categories[len(cats.Categories) + 1] = incomingCategoryRequest.Category
 
 	// Convert the list back to json
 	j,err := cats.MarshalJSON()
