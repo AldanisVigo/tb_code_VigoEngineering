@@ -55,7 +55,7 @@ func routeRequest(h event.HttpEvent) error {
 	//Route to different funcs based on the selected endpoint ghetto routing
 	switch endpoint { 
 		case "categories":
-			err = getCategories(&h)
+			err = getCategories(h)
 			if err != nil {
 				return err
 			}
@@ -89,34 +89,64 @@ type AddCategoryRequest struct {
 }
 
 func addCategory(h event.HttpEvent) error {
-	// Open the database
+	//Get a reference to the database
 	// db, err := database.New("taulistdb")
 	// if err != nil {
 	// 	return err
 	// }
 
-	// Retrieve the new category from the request
-	requestBody := h.Body()
-	requestBodyData, err := ioutil.ReadAll(requestBody)
+	//Get the Body in the HTTP object
+	body := h.Body()
+	bodyData, err := ioutil.ReadAll(body)
 	if err != nil {
 		return err
 	}
 
 	//Close the body
-	err = requestBody.Close() 
-	if err != nil { //If we encounter an error closing the request body
-		return err //Return the error
-	}
-
-	//Pull the request from the body data
-	req := &AddCategoryRequest{}
-	err = req.UnmarshalJSON(requestBodyData)
+	err = body.Close()
 	if err != nil {
 		return err
 	}
 
-	h.Write([]byte(requestBodyData))
-	h.Write([]byte(req.category))
+	//Create an empty user
+	incomingCategoryRequest := &AddCategoryRequest{}
+
+	//Fill it with the unmarshalled json version of the body data
+	err = incomingCategoryRequest.UnmarshalJSON(bodyData)
+	if err != nil {
+		return err
+	}
+
+	h.Write([]byte(incomingCategoryRequest.category))
+
+	// // Open the database
+	// // db, err := database.New("taulistdb")
+	// // if err != nil {
+	// // 	return err
+	// // }
+
+	// // Retrieve the new category from the request
+	// requestBody := h.Body()
+	// requestBodyData, err := ioutil.ReadAll(requestBody)
+	// if err != nil {
+	// 	return err
+	// }
+
+	// //Close the body
+	// err = requestBody.Close() 
+	// if err != nil { //If we encounter an error closing the request body
+	// 	return err //Return the error
+	// }
+
+	// //Pull the request from the body data
+	// req := &AddCategoryRequest{}
+	// err = req.UnmarshalJSON(requestBodyData)
+	// if err != nil {
+	// 	return err
+	// }
+
+	// h.Write([]byte(requestBodyData))
+	// h.Write([]byte(req.category))
 	// // Get the categories from the database
 	// currentCats,err := db.Get("categories")
 	// if err != nil {
@@ -163,7 +193,7 @@ func addCategory(h event.HttpEvent) error {
 }
 
 
-func getCategories(h *event.HttpEvent) error {
+func getCategories(h event.HttpEvent) error {
 	//Get the test database
 	db, err := database.New("taulistdb")
 	if err != nil { //If we encounter an error getting the database
