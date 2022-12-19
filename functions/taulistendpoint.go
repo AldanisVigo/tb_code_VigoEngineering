@@ -72,10 +72,10 @@ func retrieveQueryParams(h event.HttpEvent) error {
 	}
 
 	// Get the database 
-	db, err := database.New("taulistdb")
-	if err != nil {
-		return err
-	}
+	// db, err := database.New("taulistdb")
+	// if err != nil {
+	// 	return err
+	// }
 
 
 	switch endpoint { 
