@@ -16,6 +16,7 @@ import (
 //easyjson:json
 type Categories struct {
 	Categories map[int]string
+	CategoriesArray []string
 }
 
 //easyjson:json
@@ -23,21 +24,41 @@ type AddCategoryRequest struct {
 	Category string
 }
 
+//easyjson:json
+type AdsRequest struct {
+	State string
+	City string
+}
+
+//easyjson:json
+type AddAdRequest struct {
+	AdData Ad
+}
+
+//easyjson:json
+type Ad struct {
+	Title string
+	Description string
+	PosterID string
+	City string
+	State string
+}
+
 //export taulistendpoint
 func taulistendpoint(e event.Event) uint32 {
 	// Get the HTTP request
 	h,err := e.HTTP()	
 	if err != nil { // If we have an error getting the HTTP request
-		h.Write([]byte(fmt.Sprintf("ERROR: %s\n",err))) //Let the user know that we had an error
+		h.Write([]byte(fmt.Sprintf("ERROR: %s\n",err))) // Let the user know that we had an error
 	}
 
-	//Route the request
+	// Route the request
 	err = routeRequest(h)
-	if err != nil { //If there's an error while retrieving the queries
+	if err != nil { // If there's an error while retrieving the queries
 		// Set the response header's content type to application/json
 		err = h.Headers().Set("Content-Type","application/json")
 
-		h.Write([]byte(fmt.Sprintf("ERROR: %s\n",err))) //Send an error back to the client
+		h.Write([]byte(fmt.Sprintf("ERROR: %s\n",err))) // Send an error back to the client
 	}
 
 	// Successful execution
@@ -62,7 +83,7 @@ func routeRequest(h event.HttpEvent) error {
 		return errors.New("You must include an endpoint query parameter with your request.")
 	}
 
-	//Route to different funcs based on the selected endpoint ghetto routing
+	// Route to different funcs based on the selected endpoint ghetto routing
 	switch endpoint { 
 		case "categories":
 			err = getCategories(h)
@@ -76,10 +97,12 @@ func routeRequest(h event.HttpEvent) error {
 			if err != nil {
 				return err
 			}
-			
-			h.Write([]byte(`{"added" : "true"}`))
-
 			return nil
+		case "ads":
+			err = getAds(h)
+			if err != nil {
+				return err
+			}
 		default:
 			_,err = h.Write([]byte("{ \"error\" : \"Invalid endpoint requested.\"}"))
 			if err != nil { 
@@ -88,16 +111,19 @@ func routeRequest(h event.HttpEvent) error {
 			
 			return nil
 	}
+
+	//Execution sucessful
+	return nil
 }
 
-func addCategory(h event.HttpEvent) error {
-	//Get a reference to the database
-	db, err := database.New("taulistdb")
-	if err != nil {
-		return err
-	}
+func getAds(h event.HttpEvent) error {
+	// Get a reference to the database
+	// db, err := database.New("taulistdb")
+	// if err != nil {
+	// 	return err
+	// }
 
-	//Get the Body in the HTTP object
+	// Get the Body in the HTTP object
 	body := h.Body()
 	bodyData, err := ioutil.ReadAll(body)
 	if err != nil {
@@ -110,10 +136,47 @@ func addCategory(h event.HttpEvent) error {
 		return err
 	}
 
-	//Create an empty incoming category request
+	//Create an empty incoming ads request
+	incomingAdsRequest := &AdsRequest{
+		City : "",
+		State : "",
+	}
+
+	//Unmarshal the incoming body data int a AdsRequest
+	err = incomingAdsRequest.UnmarshalJSON(bodyData)
+	if err != nil {
+		return err
+	}
+
+	h.Write([]byte("City: " + incomingAdsRequest.City + " State: " + incomingAdsRequest.State))
+
+	return nil
+}
+
+func addCategory(h event.HttpEvent) error {
+	// Get a reference to the database
+	db, err := database.New("taulistdb")
+	if err != nil {
+		return err
+	}
+
+	// Get the Body in the HTTP object
+	body := h.Body()
+	bodyData, err := ioutil.ReadAll(body)
+	if err != nil {
+		return err
+	}
+
+	// Close the body
+	err = body.Close()
+	if err != nil {
+		return err
+	}
+
+	// Create an empty incoming category request
 	incomingCategoryRequest := &AddCategoryRequest{}
 
-	//Fill it with the unmarshalled json version of the body data
+	// Fill it with the unmarshalled json version of the body data
 	err = incomingCategoryRequest.UnmarshalJSON(bodyData)
 	if err != nil {
 		return err

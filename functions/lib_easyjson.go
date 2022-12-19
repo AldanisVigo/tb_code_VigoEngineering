@@ -300,6 +300,45 @@ func easyjsonEc607727DecodeFunctionFunctions4(in *jlexer.Lexer, out *Categories)
 			continue
 		}
 		switch key {
+		case "Categories":
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				in.Delim('{')
+				out.Categories = make(map[int]string)
+				for !in.IsDelim('}') {
+					key := int(in.IntStr())
+					in.WantColon()
+					var v1 string
+					v1 = string(in.String())
+					(out.Categories)[key] = v1
+					in.WantComma()
+				}
+				in.Delim('}')
+			}
+		case "CategoriesArray":
+			if in.IsNull() {
+				in.Skip()
+				out.CategoriesArray = nil
+			} else {
+				in.Delim('[')
+				if out.CategoriesArray == nil {
+					if !in.IsDelim(']') {
+						out.CategoriesArray = make([]string, 0, 4)
+					} else {
+						out.CategoriesArray = []string{}
+					}
+				} else {
+					out.CategoriesArray = (out.CategoriesArray)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v2 string
+					v2 = string(in.String())
+					out.CategoriesArray = append(out.CategoriesArray, v2)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
 		default:
 			in.SkipRecursive()
 		}
@@ -314,6 +353,43 @@ func easyjsonEc607727EncodeFunctionFunctions4(out *jwriter.Writer, in Categories
 	out.RawByte('{')
 	first := true
 	_ = first
+	{
+		const prefix string = ",\"Categories\":"
+		out.RawString(prefix[1:])
+		if in.Categories == nil && (out.Flags&jwriter.NilMapAsEmpty) == 0 {
+			out.RawString(`null`)
+		} else {
+			out.RawByte('{')
+			v3First := true
+			for v3Name, v3Value := range in.Categories {
+				if v3First {
+					v3First = false
+				} else {
+					out.RawByte(',')
+				}
+				out.IntStr(int(v3Name))
+				out.RawByte(':')
+				out.String(string(v3Value))
+			}
+			out.RawByte('}')
+		}
+	}
+	{
+		const prefix string = ",\"CategoriesArray\":"
+		out.RawString(prefix)
+		if in.CategoriesArray == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+			out.RawString("null")
+		} else {
+			out.RawByte('[')
+			for v4, v5 := range in.CategoriesArray {
+				if v4 > 0 {
+					out.RawByte(',')
+				}
+				out.String(string(v5))
+			}
+			out.RawByte(']')
+		}
+	}
 	out.RawByte('}')
 }
 
@@ -340,7 +416,80 @@ func (v *Categories) UnmarshalJSON(data []byte) error {
 func (v *Categories) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjsonEc607727DecodeFunctionFunctions4(l, v)
 }
-func easyjsonEc607727DecodeFunctionFunctions5(in *jlexer.Lexer, out *AddCategoryRequest) {
+func easyjsonEc607727DecodeFunctionFunctions5(in *jlexer.Lexer, out *AdsRequest) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "State":
+			out.State = string(in.String())
+		case "City":
+			out.City = string(in.String())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjsonEc607727EncodeFunctionFunctions5(out *jwriter.Writer, in AdsRequest) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"State\":"
+		out.RawString(prefix[1:])
+		out.String(string(in.State))
+	}
+	{
+		const prefix string = ",\"City\":"
+		out.RawString(prefix)
+		out.String(string(in.City))
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v AdsRequest) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjsonEc607727EncodeFunctionFunctions5(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v AdsRequest) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonEc607727EncodeFunctionFunctions5(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *AdsRequest) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjsonEc607727DecodeFunctionFunctions5(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *AdsRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonEc607727DecodeFunctionFunctions5(l, v)
+}
+func easyjsonEc607727DecodeFunctionFunctions6(in *jlexer.Lexer, out *AddCategoryRequest) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -371,7 +520,7 @@ func easyjsonEc607727DecodeFunctionFunctions5(in *jlexer.Lexer, out *AddCategory
 		in.Consumed()
 	}
 }
-func easyjsonEc607727EncodeFunctionFunctions5(out *jwriter.Writer, in AddCategoryRequest) {
+func easyjsonEc607727EncodeFunctionFunctions6(out *jwriter.Writer, in AddCategoryRequest) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -386,23 +535,183 @@ func easyjsonEc607727EncodeFunctionFunctions5(out *jwriter.Writer, in AddCategor
 // MarshalJSON supports json.Marshaler interface
 func (v AddCategoryRequest) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonEc607727EncodeFunctionFunctions5(&w, v)
+	easyjsonEc607727EncodeFunctionFunctions6(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v AddCategoryRequest) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonEc607727EncodeFunctionFunctions5(w, v)
+	easyjsonEc607727EncodeFunctionFunctions6(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *AddCategoryRequest) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonEc607727DecodeFunctionFunctions5(&r, v)
+	easyjsonEc607727DecodeFunctionFunctions6(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *AddCategoryRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonEc607727DecodeFunctionFunctions5(l, v)
+	easyjsonEc607727DecodeFunctionFunctions6(l, v)
+}
+func easyjsonEc607727DecodeFunctionFunctions7(in *jlexer.Lexer, out *AddAdRequest) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "AdData":
+			(out.AdData).UnmarshalEasyJSON(in)
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjsonEc607727EncodeFunctionFunctions7(out *jwriter.Writer, in AddAdRequest) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"AdData\":"
+		out.RawString(prefix[1:])
+		(in.AdData).MarshalEasyJSON(out)
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v AddAdRequest) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjsonEc607727EncodeFunctionFunctions7(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v AddAdRequest) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonEc607727EncodeFunctionFunctions7(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *AddAdRequest) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjsonEc607727DecodeFunctionFunctions7(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *AddAdRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonEc607727DecodeFunctionFunctions7(l, v)
+}
+func easyjsonEc607727DecodeFunctionFunctions8(in *jlexer.Lexer, out *Ad) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "Title":
+			out.Title = string(in.String())
+		case "Description":
+			out.Description = string(in.String())
+		case "PosterID":
+			out.PosterID = string(in.String())
+		case "City":
+			out.City = string(in.String())
+		case "State":
+			out.State = string(in.String())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjsonEc607727EncodeFunctionFunctions8(out *jwriter.Writer, in Ad) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"Title\":"
+		out.RawString(prefix[1:])
+		out.String(string(in.Title))
+	}
+	{
+		const prefix string = ",\"Description\":"
+		out.RawString(prefix)
+		out.String(string(in.Description))
+	}
+	{
+		const prefix string = ",\"PosterID\":"
+		out.RawString(prefix)
+		out.String(string(in.PosterID))
+	}
+	{
+		const prefix string = ",\"City\":"
+		out.RawString(prefix)
+		out.String(string(in.City))
+	}
+	{
+		const prefix string = ",\"State\":"
+		out.RawString(prefix)
+		out.String(string(in.State))
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v Ad) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjsonEc607727EncodeFunctionFunctions8(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v Ad) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonEc607727EncodeFunctionFunctions8(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *Ad) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjsonEc607727DecodeFunctionFunctions8(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *Ad) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonEc607727DecodeFunctionFunctions8(l, v)
 }
