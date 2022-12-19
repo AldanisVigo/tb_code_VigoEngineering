@@ -139,6 +139,7 @@ func serializeCategoriesJson(json string,catList *CategoriesList,h *event.HttpEv
 		//Modify the catList's category list to it
 		catList.ModifyCategories(emptyArray)
 	}
+	
 
 
 	_,err := h.Write([]byte(json))
@@ -146,31 +147,44 @@ func serializeCategoriesJson(json string,catList *CategoriesList,h *event.HttpEv
 		return err
 	}
 
-	// _,after,containsOpening := strings.Cut(json,"{")
-	// if !containsOpening { //If we don't detect the { opening character for the expected json structure
-	// 	//Generate and return a new error explaining the situation
-	// 	return errors.New("Error serializing the categories json to a CategoryList instance: The json provided is missing the opening {")
-	// }else{ //Otherwise split again by the closing character } and only grab everything before it
-	// 	before,_,containsClosing := strings.Cut(after,"}")
-	// 	if !containsClosing {//If we're not able to find the closing } character
-	// 		//Generate and return a new error explaining the situation
-	// 		return errors.New("Error serializing the categories json to a CategoryList instance: The json provided is missing the closing }")
-	// 	}
+	_,after,containsOpening := strings.Cut(json,"{")
+	if !containsOpening { //If we don't detect the { opening character for the expected json structure
+		//Generate and return a new error explaining the situation
+		return errors.New("Error serializing the categories json to a CategoryList instance: The json provided is missing the opening {")
+	}else{ //Otherwise split again by the closing character } and only grab everything before it
+		before,_,containsClosing := strings.Cut(after,"}")
+		if !containsClosing {//If we're not able to find the closing } character
+			//Generate and return a new error explaining the situation
+			return errors.New("Error serializing the categories json to a CategoryList instance: The json provided is missing the closing }")
+		}
 		
-	// 	//Get the key value pairs by splitting by the , character to separate the list of key:value,key:value
-	// 	keyValPairsWithColon := strings.Split(before,",")
+		//Get the key value pairs by splitting by the , character to separate the list of key:value,key:value
+		keyValPairsWithColon := strings.Split(before,",")
 
-	// 	//Iterate through the keyValuePairsWithColon
-	// 	for _,value := range keyValPairsWithColon {
-	// 		//Grab the key
-	// 		key := strings.Split(value,":")[0]
+		//Make a map to store the key value pairs
+		keyValPairs := make(map[string]string)
 
-	// 		//And grab the value
-	// 		value := strings.Split(value,":")[1]
+		//Iterate through the keyValuePairsWithColon
+		for _,value := range keyValPairsWithColon {
+			//Grab the key
+			key := strings.Split(value,":")[0]
 
+			//And grab the value
+			value := strings.Split(value,":")[1]
 
-	// 	}
-	// }
+			keyValPairs[key] = value
+		}
+
+		//Build the json response
+		jsonResponse := "{"
+		for key,val := range keyValPairs {
+			jsonResponse = jsonResponse + "\"" + key  + "\"" + ":" + "\"" + val + "\"" 
+		}
+		jsonResponse = jsonResponse + "}"
+
+		//Write it back to the client
+		h.Write([]byte(jsonResponse))
+	}
 
 
 
@@ -191,7 +205,7 @@ func retrieveCategories(db *database.Database) (string, error) {
 		}
 		
 		//For all other errors do the same thing for now
-		//TODO: Add more robust
+		//TODO: Add more robust error handling later
 		return "{}", nil //Return an empty json object and nil for the error
 	}
 
