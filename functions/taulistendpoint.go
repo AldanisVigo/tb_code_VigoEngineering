@@ -116,6 +116,8 @@ func addCategory(h *event.HttpEvent) error {
 	}
 
 	h.Write([]byte(requestBodyData))
+	h.Write([]byte(req))
+	h.Write([]byte(req.category))
 	// // Get the categories from the database
 	// currentCats,err := db.Get("categories")
 	// if err != nil {
