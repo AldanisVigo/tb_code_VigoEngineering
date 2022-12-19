@@ -98,6 +98,7 @@ func routeRequest(h event.HttpEvent) error {
 			}
 
 			h.Write([]byte(incomingCategoryRequest.Category))
+			h.Write([]byte(`{"added" : "true"}`))
 
 			return nil
 		default:
