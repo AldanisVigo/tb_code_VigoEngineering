@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -124,7 +125,8 @@ func addNewCategory(h *event.HttpEvent) error {
 	addCategoryRequest := &AddCategoryRequest{}
 
 	// Unmarshal the request 
-	err = addCategoryRequest.UnmarshalJSON(bodyData)
+	// err = addCategoryRequest.UnmarshalJSON(bodyData)
+	err = json.Unmarshal(bodyData,addCategoryRequest)
 	if err != nil {
 		return err
 	}
@@ -139,7 +141,8 @@ func addNewCategory(h *event.HttpEvent) error {
 	catsList := &CategoriesList{}
 
 	//Fill it with the unmarshaled json from the database
-	err = catsList.UnmarshalJSON(catsJson)
+	// err = catsList.UnmarshalJSON(catsJson)
+	err = json.Unmarshal(catsJson,catsList)
 	if err != nil {
 		return err
 	}
