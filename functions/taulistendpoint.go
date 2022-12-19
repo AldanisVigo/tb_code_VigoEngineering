@@ -180,7 +180,10 @@ func addCategory(db *database.Database, category string,h *event.HttpEvent) erro
 	catListObj := &CategoriesList{}
 
 	// TODO: Serialize the current categories into a CategoriesList object
-	serializeCategoriesJson(currentCats,catListObj,h)
+	err = serializeCategoriesJson(currentCats,catListObj,h)
+	if err != nil {
+		return err
+	}
 
 	// h.Write([]byte(catListObj.categories));
 	for _,val := range catListObj.categories {
