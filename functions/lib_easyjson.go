@@ -8,6 +8,13 @@ import (
   "github.com/mailru/easyjson/jlexer"
 )
 
+func ( AddCategoryRequest ) MarshalJSON() ([]byte, error) { return nil, nil }
+func (* AddCategoryRequest ) UnmarshalJSON([]byte) error { return nil }
+func ( AddCategoryRequest ) MarshalEasyJSON(w *jwriter.Writer) {}
+func (* AddCategoryRequest ) UnmarshalEasyJSON(l *jlexer.Lexer) {}
+
+type EasyJSON_exporter_AddCategoryRequest *AddCategoryRequest
+
 func ( CategoriesList ) MarshalJSON() ([]byte, error) { return nil, nil }
 func (* CategoriesList ) UnmarshalJSON([]byte) error { return nil }
 func ( CategoriesList ) MarshalEasyJSON(w *jwriter.Writer) {}
