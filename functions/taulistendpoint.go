@@ -31,12 +31,12 @@ func taulistendpoint(e event.Event) uint32 {
 		h.Write([]byte(fmt.Sprintf("ERROR: %s\n",err))) //Let the user know that we had an error
 	}
 
-	// Set the response header's content type to application/json
-	err = h.Headers().Set("Content-Type","application/json")
-
 	//Route the request
 	err = routeRequest(h)
 	if err != nil { //If there's an error while retrieving the queries
+		// Set the response header's content type to application/json
+		err = h.Headers().Set("Content-Type","application/json")
+
 		h.Write([]byte(fmt.Sprintf("ERROR: %s\n",err))) //Send an error back to the client
 	}
 
