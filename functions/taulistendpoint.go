@@ -20,7 +20,7 @@ type Categories struct {
 
 //easyjson:json
 type AddCategoryRequest struct {
-	category  string
+	Category string
 }
 
 //export taulistendpoint
@@ -117,7 +117,7 @@ func addCategory(h event.HttpEvent) error {
 		return err
 	}
 
-	h.Write([]byte(incomingCategoryRequest.category))
+	h.Write([]byte(incomingCategoryRequest.Category))
 
 	// // Open the database
 	// // db, err := database.New("taulistdb")
