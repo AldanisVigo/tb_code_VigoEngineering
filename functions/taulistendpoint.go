@@ -110,7 +110,7 @@ func addCategory(h event.HttpEvent) error {
 		return err
 	}
 
-	//Create an empty user
+	//Create an empty incoming category request
 	incomingCategoryRequest := &AddCategoryRequest{}
 
 	//Fill it with the unmarshalled json version of the body data
@@ -118,8 +118,7 @@ func addCategory(h event.HttpEvent) error {
 	if err != nil {
 		return err
 	}
-
-	// h.Write([]byte(incomingCategoryRequest.Category))	
+	
 	// Get the categories from the database
 	currentCats,err := db.Get("categories")
 	if err != nil {
@@ -132,13 +131,14 @@ func addCategory(h event.HttpEvent) error {
         //     "Ti1": "hello",
         // },
     }
+
 	err = cats.UnmarshalJSON(currentCats)
 	if err != nil {
 		return err
 	}
 
 	// Add the new category at the next available key value
-	cats.Categories[len(cats.Categories) + 1] = incomingCategoryRequest.Category
+	// cats.Categories[len(cats.Categories) + 1] = incomingCategoryRequest.Category
 
 	// Convert the list back to json
 	j,err := cats.MarshalJSON()
