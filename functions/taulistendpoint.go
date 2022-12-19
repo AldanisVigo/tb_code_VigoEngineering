@@ -81,9 +81,13 @@ func retrieveQueryParams(h event.HttpEvent) error {
 	switch endpoint { 
 		case "categories":
 			// Retrieve the categories from the database
-			cats,err := retrieveCategories(&db)
-			if err != nil { // If there's an error retrieving the categories from the database
-				return err // Return the error
+			// cats,err := retrieveCategories(&db)
+			// if err != nil { // If there's an error retrieving the categories from the database
+			// 	return err // Return the error
+			// }
+			cats,err := db.Get("categories")
+			if err != nil {
+				return err
 			}
 
 			// Send the categories back to the client
@@ -96,18 +100,19 @@ func retrieveQueryParams(h event.HttpEvent) error {
 			return nil
 		case "addcategory":
 			// Retrieve the query parameter for the category
-			cat,err := queries.Get("category")
-			if err != nil { // If there's an error pulling the query parameter for the category
-				return err // Return the error
-			}else{ // Otherwise
-				// Add the category to the category list
-				err = addCategory(&db,cat,&h)
-				if err != nil { // if there's an error while adding the category to the category list
-					return err // Return the error
-				}
+			// cat,err := queries.Get("category")
+			// if err != nil { // If there's an error pulling the query parameter for the category
+			// 	return err // Return the error
+			// }else{ // Otherwise
+			// 	// Add the category to the category list
+			// 	err = addCategory(&db,cat,&h)
+			// 	if err != nil { // if there's an error while adding the category to the category list
+			// 		return err // Return the error
+			// 	}
 				
-				_,err = h.Write([]byte("Added category"))
-			}
+			// 	_,err = h.Write([]byte("Added category"))
+			// }
+
 
 			// Execution succeeded, return nil for error
 			return nil
