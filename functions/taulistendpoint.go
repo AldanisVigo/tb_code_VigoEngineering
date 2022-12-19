@@ -97,7 +97,7 @@ func addCategory(h *event.HttpEvent) error {
 
 	// Retrieve the new category from the request
 	requestBody := h.Body()
-	requestBodyData,err := ioutil.ReadAll(requestBody)
+	requestBodyData, err := ioutil.ReadAll(requestBody)
 	if err != nil {
 		return err
 	}
