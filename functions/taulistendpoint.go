@@ -105,6 +105,8 @@ func retrieveQueryParams(h event.HttpEvent) error {
 				if err != nil { // if there's an error while adding the category to the category list
 					return err // Return the error
 				}
+				
+				_,err = h.Write([]byte("Added category"))
 			}
 
 			// Execution succeeded, return nil for error
