@@ -107,11 +107,16 @@ func addCategory(h *event.HttpEvent) error {
 	if err != nil { //If we encounter an error closing the request body
 		return err //Return the error
 	}
+
+	//Pull the request from the body data
 	req := &AddCategoryRequest{}
-	req.UnmarshalJSON(requestBodyData)
+	err = req.UnmarshalJSON(requestBodyData)
+	if err != nil {
+		return err
+	}
 	newCat := req.category
 
-	h.Write([]byte(newCat))
+	h.Write([]byte("New Category: " + newCat))
 	// // Get the categories from the database
 	// currentCats,err := db.Get("categories")
 	// if err != nil {
