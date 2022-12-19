@@ -118,6 +118,12 @@ func addCategory(h *event.HttpEvent) error {
 	if err != nil {
 		return err
 	}
+
+	//Close the body
+	err = requesBody.Close() 
+	if err != nil { //If we encounter an error closing the request body
+		return err //Return the error
+	}
 	req := &AddCategoryRequest{}
 	req.UnmarshalJSON(requestBodyData)
 	newCat := req.category
@@ -175,27 +181,8 @@ func getCategories(h *event.HttpEvent) error {
 		return err //Return the error
 	}
 
-	//Get the Body in the HTTP object
-	body := h.Body()
-	bodyData, err := ioutil.ReadAll(body) //Read the contents of the request body
-	if err != nil { //If we encounter an error reading the contents of the request body
-		return err //Return the error
-	}
-
-	//Close the body
-	err = body.Close() 
-	if err != nil { //If we encounter an error closing the request body
-		return err //Return the error
-	}
-
-	//Create an empty user
-	incomingUserRequest := &UserRequest{}
-
-	//Fill it with the unmarshalled json version of the body data
-	incomingUserRequest.UnmarshalJSON(bodyData)
-
 	//Get the user JSON from the the database
-	data, err := db.Get(incomingUserRequest.UUID)
+	data, err := db.Get("categories")
 	if err != nil { //If we encounter an error getting the current user
 		return err //Return an error
 	}
