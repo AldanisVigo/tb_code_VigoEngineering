@@ -359,6 +359,8 @@ func easyjsonEc607727DecodeFunctionFunctions5(in *jlexer.Lexer, out *AddCategory
 			continue
 		}
 		switch key {
+		case "Category":
+			out.Category = string(in.String())
 		default:
 			in.SkipRecursive()
 		}
@@ -373,6 +375,11 @@ func easyjsonEc607727EncodeFunctionFunctions5(out *jwriter.Writer, in AddCategor
 	out.RawByte('{')
 	first := true
 	_ = first
+	{
+		const prefix string = ",\"Category\":"
+		out.RawString(prefix[1:])
+		out.String(string(in.Category))
+	}
 	out.RawByte('}')
 }
 

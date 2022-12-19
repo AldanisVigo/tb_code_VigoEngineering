@@ -15,7 +15,7 @@ import (
 
 //easyjson:json
 type Categories struct {
-	categories map[int]string
+	Categories map[int]string
 }
 
 //easyjson:json
@@ -72,32 +72,11 @@ func routeRequest(h event.HttpEvent) error {
 
 			return nil
 		case "addcategory": 
-			// err = addCategory(h)
-			// if err != nil {
-			// 	return err
-			// }
-			body := h.Body()
-			bodyData, err := ioutil.ReadAll(body)
+			err = addCategory(h)
 			if err != nil {
 				return err
 			}
-
-			//Close the body
-			err = body.Close()
-			if err != nil {
-				return err
-			}
-
-			//Create an empty user
-			incomingCategoryRequest := &AddCategoryRequest{}
-
-			//Fill it with the unmarshalled json version of the body data
-			err = incomingCategoryRequest.UnmarshalJSON(bodyData)
-			if err != nil {
-				return err
-			}
-
-			h.Write([]byte(incomingCategoryRequest.Category))
+			
 			h.Write([]byte(`{"added" : "true"}`))
 
 			return nil
@@ -113,10 +92,10 @@ func routeRequest(h event.HttpEvent) error {
 
 func addCategory(h event.HttpEvent) error {
 	//Get a reference to the database
-	// db, err := database.New("taulistdb")
-	// if err != nil {
-	// 	return err
-	// }
+	db, err := database.New("taulistdb")
+	if err != nil {
+		return err
+	}
 
 	//Get the Body in the HTTP object
 	body := h.Body()
@@ -142,74 +121,74 @@ func addCategory(h event.HttpEvent) error {
 
 	h.Write([]byte(incomingCategoryRequest.Category))
 
-	// // Open the database
-	// // db, err := database.New("taulistdb")
-	// // if err != nil {
-	// // 	return err
-	// // }
-
-	// // Retrieve the new category from the request
-	// requestBody := h.Body()
-	// requestBodyData, err := ioutil.ReadAll(requestBody)
+	// Open the database
+	// db, err := database.New("taulistdb")
 	// if err != nil {
 	// 	return err
 	// }
 
-	// //Close the body
-	// err = requestBody.Close() 
-	// if err != nil { //If we encounter an error closing the request body
-	// 	return err //Return the error
-	// }
+	// Retrieve the new category from the request
+	requestBody := h.Body()
+	requestBodyData, err := ioutil.ReadAll(requestBody)
+	if err != nil {
+		return err
+	}
 
-	// //Pull the request from the body data
-	// req := &AddCategoryRequest{}
-	// err = req.UnmarshalJSON(requestBodyData)
-	// if err != nil {
-	// 	return err
-	// }
+	//Close the body
+	err = requestBody.Close() 
+	if err != nil { //If we encounter an error closing the request body
+		return err //Return the error
+	}
 
-	// h.Write([]byte(requestBodyData))
-	// h.Write([]byte(req.category))
-	// // Get the categories from the database
-	// currentCats,err := db.Get("categories")
-	// if err != nil {
-	// 	return err
-	// }
+	//Pull the request from the body data
+	req := &AddCategoryRequest{}
+	err = req.UnmarshalJSON(requestBodyData)
+	if err != nil {
+		return err
+	}
 
-	// // Retrieve the existing list of categories
-	// cats := &Categories{
-    //     // categories : map[string]string{
-    //     //     "Ti1": "hello",
-    //     // },
-    // }
-	// err = cats.UnmarshalJSON(currentCats)
-	// if err != nil {
-	// 	return err
-	// }
+	h.Write([]byte(requestBodyData))
+	h.Write([]byte(req.Category))
+	// Get the categories from the database
+	currentCats,err := db.Get("categories")
+	if err != nil {
+		return err
+	}
 
-	// // Add the new category at the next available key value
-	// cats.categories[len(cats.categories) + 1] = newCat
+	// Retrieve the existing list of categories
+	cats := &Categories{
+        // categories : map[string]string{
+        //     "Ti1": "hello",
+        // },
+    }
+	err = cats.UnmarshalJSON(currentCats)
+	if err != nil {
+		return err
+	}
 
-	// // Convert the list back to json
-	// j,err := cats.MarshalJSON()
-	// if err != nil {
-	// 	return err
-	// }
+	// Add the new category at the next available key value
+	cats.Categories[len(cats.Categories) + 1] = newCat
 
-	// // Write the list back to the database
-	// err = db.Put("categories",j)
-	// if err != nil {
-	// 	return err
-	// }
+	// Convert the list back to json
+	j,err := cats.MarshalJSON()
+	if err != nil {
+		return err
+	}
 
-	// // Close the databse
-	// err = db.Close()
-	// if err != nil {
-	// 	return err
-	// }
+	// Write the list back to the database
+	err = db.Put("categories",j)
+	if err != nil {
+		return err
+	}
 
-	// // Return the json back to the user
-	// h.Write(j)
+	// Close the databse
+	err = db.Close()
+	if err != nil {
+		return err
+	}
+
+	// Return the json back to the user
+	h.Write(j)
 
 	// Return nil for error
 	return nil
