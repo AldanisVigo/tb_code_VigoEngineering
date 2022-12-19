@@ -85,17 +85,21 @@ func retrieveQueryParams(h event.HttpEvent) error {
 			// if err != nil { // If there's an error retrieving the categories from the database
 			// 	return err // Return the error
 			// }
-			cats,err := db.Get("categories")
+			// cats,err := db.Get("categories")
+			// if err != nil {
+			// 	return err
+			// }
+
+			// // Send the categories back to the client
+			// _,err = h.Write([]byte(cats))
+			// if err != nil { // If there's an error sending the categories to the client
+			// 	return err // Return the error
+			// }
+			err = getCategories(&h)
 			if err != nil {
 				return err
 			}
 
-			// Send the categories back to the client
-			_,err = h.Write([]byte(cats))
-			if err != nil { // If there's an error sending the categories to the client
-				return err // Return the error
-			}
-			
 			// Execution succeeded, return nil for error
 			return nil
 		case "addcategory":
@@ -126,6 +130,38 @@ func retrieveQueryParams(h event.HttpEvent) error {
 			// Execution succeeded, return nil for error
 			return nil
 	}
+}
+
+func getCategories(h *event.HttpEvent) error {
+	//Get the taulistdb database
+	db, err := database.New("taulistdb")
+	if err != nil { //If we encounter an error getting the database
+		return err //Return the error
+	}
+
+	//Get the user JSON from the the database
+	data, err := db.Get("categories")
+	if err != nil { //If we encounter an error getting the current user
+		return err //Return an error
+	}
+	
+	//Close the db
+	err = db.Close()
+	if err != nil { //If we encounter an error while closing the database
+		return err //Return the error
+	}
+	
+	//Return a response to the caller
+	w,err := h.Write([]byte(data))
+	if err != nil {
+		return err
+	}
+
+	//Print the results of the write
+	fmt.Print(w)
+
+	//Execution successful, return nil for error
+  	return nil
 }
 
 
