@@ -8,6 +8,7 @@ import (
 	"bitbucket.org/taubyte/go-sdk/event"
 )
 
+//export getCategories
 func getCategories(h *event.HttpEvent) error {
 	//Get the test database
 	db, err := database.New("testdb")

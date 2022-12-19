@@ -20,7 +20,7 @@ type Categories struct {
 type AddCategoryRequest struct {
 	category  string
 }
-
+//export addCategory
 func addCategory(h *event.HttpEvent) error {
 	// Open the database
 	db, err := database.New("taulistdb")
