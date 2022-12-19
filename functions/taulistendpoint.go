@@ -3,6 +3,7 @@ package lib
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"strings"
 
 	"bitbucket.org/taubyte/go-sdk/database"
@@ -17,6 +18,11 @@ import (
 //easyjson:json
 type CategoriesList struct {
 	categories []string
+}
+
+//easyjson:json
+type AddCategoryRequest struct {
+	category string
 }
 
 /*
@@ -119,6 +125,12 @@ func retrieveQueryParams(h event.HttpEvent) error {
 
 
 			// Execution succeeded, return nil for error
+
+			err = addNewCategory(&h)
+			if err != nil {
+				return err
+			}
+
 			return nil
 		default:
 			// Send an empty json object back to the client
@@ -130,6 +142,79 @@ func retrieveQueryParams(h event.HttpEvent) error {
 			// Execution succeeded, return nil for error
 			return nil
 	}
+}
+
+func addNewCategory(h *event.HttpEvent) error {
+	// Get a reference to the database
+	db, err := database.New("taulistdb")
+	if err != nil {
+		return err
+	}
+
+	// Get the Body in the HTTP object
+	body := h.Body()
+	bodyData, err := ioutil.ReadAll(body)
+	if err != nil {
+		return err
+	}
+
+	// Close the body
+	err = body.Close()
+	if err != nil {
+		return err
+	}
+
+	// Create an empty array of strings to hold the categories
+	addCategoryRequest = &AddCategoryRequest{}
+
+	// Unmarshal the request 
+	err = addCategoryRequest.UnmarshalJSON(bodyData)
+	if err != nil {
+		return err
+	}
+
+	// Get the current list of categories
+	catsJson,err := db.Get("categories")
+	if err != nil {
+		return err
+	}
+
+	//Create an empty slice of strings
+	catsList := []string{}
+
+	//Fill it with the unmarshaled json from the database
+	err = catsList.UnmarshalJSON(catsJson)
+	if err != nil {
+		return err
+	}
+
+	// Add the requested category to the list of existing categories
+	catsList = append(catsList, addCategoryRequest.category)
+
+	//Save the user JSON to the the database
+	//Ignoring errors from db.Put, h.Write, and UnmarshallJSON
+	err = db.Put("categories",bodyData)
+	if err != nil {
+		return err
+	}
+	
+	//Close the db
+	err = db.Close()
+	if err != nil {
+		return err
+	}
+	
+	//Return a response to the caller
+	w, err := h.Write([]byte("{ category : \"" + addCategoryRequest.category + "\", \"added\" : \"true\" }"))
+	if err != nil{
+		return err
+	}
+
+	//Print out result
+	fmt.Println(w)
+
+	//Execution successful, return nil for error
+  	return nil
 }
 
 func getCategories(h *event.HttpEvent) error {
