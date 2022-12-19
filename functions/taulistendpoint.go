@@ -13,6 +13,16 @@ import (
 //go:generate go install github.com/mailru/easyjson/...@latest
 //go:generate easyjson -all ${GOFILE}
 
+//easyjson:json
+type Categories struct {
+	categories map[int]string
+}
+
+//easyjson:json
+type AddCategoryRequest struct {
+	category  string
+}
+
 //export taulistendpoint
 func taulistendpoint(e event.Event) uint32 {
 	// Get the HTTP request
@@ -76,16 +86,6 @@ func routeRequest(h event.HttpEvent) error {
 			
 			return nil
 	}
-}
-
-//easyjson:json
-type Categories struct {
-	categories map[int]string
-}
-
-//easyjson:json
-type AddCategoryRequest struct {
-	category  string
 }
 
 func addCategory(h event.HttpEvent) error {
