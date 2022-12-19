@@ -117,7 +117,7 @@ func addCategory(h event.HttpEvent) error {
 		return err
 	}
 
-	h.Write([]byte(incomingCategoryRequest.Category))
+	h.Write(incomingCategoryRequest.Category.[]byte{})
 
 	// // Open the database
 	// // db, err := database.New("taulistdb")
