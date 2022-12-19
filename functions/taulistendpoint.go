@@ -127,7 +127,7 @@ func retrieveQueryParams(h event.HttpEvent) error {
 	CategoriesList Object
 */
 func serializeCategoriesJson(json string,catList *CategoriesList,h *event.HttpEvent) error {
-	h.Write([]bytes("Serialize Categories Json dFunc Running"))
+	h.Write([]byte("Serialize Categories Json dFunc Running"))
 	if len(json) == 0 { //If the length of the provided json is 0
 		//Return an error letting the user know that their json is empty
 		return errors.New("Error serializing the categories json to a CategoriesList instance: The json provided was empty.")
