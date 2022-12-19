@@ -120,7 +120,7 @@ func addCategory(h *event.HttpEvent) error {
 	}
 
 	//Close the body
-	err = requesBody.Close() 
+	err = requestBody.Close() 
 	if err != nil { //If we encounter an error closing the request body
 		return err //Return the error
 	}
