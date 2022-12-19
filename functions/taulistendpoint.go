@@ -3,7 +3,9 @@ package lib
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 
+	"bitbucket.org/taubyte/go-sdk/database"
 	"bitbucket.org/taubyte/go-sdk/event"
 )
 
@@ -93,84 +95,126 @@ func retrieveQueryParams(h event.HttpEvent) error {
 	}
 }
 
-// func addNewCategory(h *event.HttpEvent) error {
-// 	// Get a reference to the database
-// 	db, err := database.New("taulistdb")
-// 	if err != nil {
-// 		return err
-// 	}
+//easyjson:json
+type Categories struct {
+	categories map[int]string
+}
 
-// 	// Get the Body in the HTTP object
-// 	body := h.Body()
-// 	bodyData, err := ioutil.ReadAll(body)
-// 	if err != nil {
-// 		return err
-// 	}
+//easyjson:json
+type AddCategoryRequest struct {
+	category  string
+}
+//export addCategory
+func addCategory(h *event.HttpEvent) error {
+	// Open the database
+	db, err := database.New("taulistdb")
+	if err != nil {
+		return err
+	}
 
-// 	// Close the body
-// 	err = body.Close()
-// 	if err != nil {
-// 		return err
-// 	}
+	// Retrieve the new category from the request
+	requestBody := h.Body()
+	requestBodyData,err := ioutil.ReadAll(requestBody)
+	if err != nil {
+		return err
+	}
+	req := &AddCategoryRequest{}
+	req.UnmarshalJSON(requestBodyData)
+	newCat := req.category
 
-// 	// Create an empty array of strings to hold the categories
-// 	addCategoryRequest := &AddCategoryRequest{}
+	// Get the categories from the database
+	currentCats,err := db.Get("categories")
+	if err != nil {
+		return err
+	}
 
-// 	// Unmarshal the request 
-// 	// err = addCategoryRequest.UnmarshalJSON(bodyData)
-// 	err = json.Unmarshal(bodyData,addCategoryRequest)
-// 	if err != nil {
-// 		return err
-// 	}
+	// Retrieve the existing list of categories
+	cats := &Categories{
+        // categories : map[string]string{
+        //     "Ti1": "hello",
+        // },
+    }
+	err = cats.UnmarshalJSON(currentCats)
+	if err != nil {
+		return err
+	}
 
-// 	// Get the current list of categories
-// 	catsJson,err := db.Get("categories")
-// 	if err != nil {
-// 		return err
-// 	}
+	// Add the new category at the next available key value
+	cats.categories[len(cats.categories) + 1] = newCat
 
-// 	//Create an empty slice of strings
-// 	catsList := &CategoriesList{}
+	// Convert the list back to json
+	j,err := cats.MarshalJSON()
+	if err != nil {
+		return err
+	}
 
-// 	//Fill it with the unmarshaled json from the database
-// 	// err = catsList.UnmarshalJSON(catsJson)
-// 	err = json.Unmarshal(catsJson,catsList)
-// 	if err != nil {
-// 		return err
-// 	}
+	// Write the list back to the database
+	err = db.Put("categories",j)
+	if err != nil {
+		return err
+	}
 
-// 	// Add the requested category to the list of existing categories
-// 	catsList.categories = append(catsList.categories, addCategoryRequest.category)
+	// Close the databse
+	err = db.Close()
+	if err != nil {
+		return err
+	}
 
-// 	// Get the json string for the categories
-// 	catsListJson,err := catsList.MarshalJSON()
-// 	if err != nil {
-// 		return err
-// 	}
+	// Return the json back to the user
+	h.Write(j)
 
-// 	//Save the user JSON to the the database
-// 	//Ignoring errors from db.Put, h.Write, and UnmarshallJSON
-// 	err = db.Put("categories",catsListJson)
-// 	if err != nil {
-// 		return err
-// 	}
+	// Return nil for error
+	return nil
+}
+
+//export getCategories
+func getCategories(h *event.HttpEvent) error {
+	//Get the test database
+	db, err := database.New("testdb")
+	if err != nil { //If we encounter an error getting the database
+		return err //Return the error
+	}
+
+	//Get the Body in the HTTP object
+	body := h.Body()
+	bodyData, err := ioutil.ReadAll(body) //Read the contents of the request body
+	if err != nil { //If we encounter an error reading the contents of the request body
+		return err //Return the error
+	}
+
+	//Close the body
+	err = body.Close() 
+	if err != nil { //If we encounter an error closing the request body
+		return err //Return the error
+	}
+
+	//Create an empty user
+	incomingUserRequest := &UserRequest{}
+
+	//Fill it with the unmarshalled json version of the body data
+	incomingUserRequest.UnmarshalJSON(bodyData)
+
+	//Get the user JSON from the the database
+	data, err := db.Get(incomingUserRequest.UUID)
+	if err != nil { //If we encounter an error getting the current user
+		return err //Return an error
+	}
 	
-// 	//Close the db
-// 	err = db.Close()
-// 	if err != nil {
-// 		return err
-// 	}
+	//Close the db
+	err = db.Close()
+	if err != nil { //If we encounter an error while closing the database
+		return err //Return the error
+	}
 	
-// 	//Return a response to the caller
-// 	w, err := h.Write([]byte("{ category : \"" + addCategoryRequest.category + "\", \"added\" : \"true\" }"))
-// 	if err != nil{
-// 		return err
-// 	}
+	//Return a response to the caller
+	w,err := h.Write([]byte(data))
+	if err != nil {
+		return err
+	}
 
-// 	//Print out result
-// 	fmt.Println(w)
+	//Print the results of the write
+	fmt.Print(w)
 
-// 	//Execution successful, return nil for error
-//   	return nil
-// }
-
+	//Execution successful, return nil for error
+  	return nil
+}
