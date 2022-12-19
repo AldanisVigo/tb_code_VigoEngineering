@@ -133,7 +133,7 @@ func serializeCategoriesJson(json string,catList *CategoriesList,h *event.HttpEv
 	}
 
 	// Serialize the json into the catList object
-	err = catList.UnmarshalJSON([]byte(json))
+	err := catList.UnmarshalJSON([]byte(json))
 	if err != nil {
 		return err
 	}
