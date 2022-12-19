@@ -62,7 +62,7 @@ func routeRequest(h event.HttpEvent) error {
 
 			return nil
 		case "addcategory": 
-			err = addCategory(&h)
+			err = addCategory(h)
 			if err != nil {
 				return err
 			}
@@ -88,7 +88,7 @@ type AddCategoryRequest struct {
 	category  string
 }
 
-func addCategory(h *event.HttpEvent) error {
+func addCategory(h event.HttpEvent) error {
 	// Open the database
 	// db, err := database.New("taulistdb")
 	// if err != nil {
