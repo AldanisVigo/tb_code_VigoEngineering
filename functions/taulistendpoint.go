@@ -114,9 +114,8 @@ func addCategory(h *event.HttpEvent) error {
 	if err != nil {
 		return err
 	}
-	newCat := req.category
 
-	h.Write([]byte("New Category: " + newCat))
+	h.Write([]byte("New Category: " + req.category))
 	// // Get the categories from the database
 	// currentCats,err := db.Get("categories")
 	// if err != nil {
