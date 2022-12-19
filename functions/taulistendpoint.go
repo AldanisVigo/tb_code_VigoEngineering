@@ -127,7 +127,7 @@ func addCategory(h event.HttpEvent) error {
 
 	// Retrieve the existing list of categories
 	cats := &Categories{
-        categories : map[string]string{},
+        Categories : map[string]string{},
     }
 
 	err = cats.UnmarshalJSON(currentCats)
