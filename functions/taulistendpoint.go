@@ -13,18 +13,6 @@ import (
 //go:generate go install github.com/mailru/easyjson/...@latest
 //go:generate easyjson -all ${GOFILE}
 
-//easyjson:json
-type CategoriesList struct {
-	categories []string
-}
-
-/*
-	ModifyCategories allows you to change the categories in the CategoriesList struct
-*/
-func (cl *CategoriesList) ModifyCategories(newCategories []string){
-	cl.categories = newCategories
-}
-
 //export taulistendpoint
 func taulistendpoint(e event.Event) uint32 {
 	// Get the HTTP request
@@ -36,14 +24,8 @@ func taulistendpoint(e event.Event) uint32 {
 	// Set the response header's content type to application/json
 	err = h.Headers().Set("Content-Type","application/json")
 
-	// Once we have the HTTP request, retrieve and return the path to the user
-	// err = retrieveRequestPath(h)
-	// if err != nil { //If there's an error while retrieving the path
-	// 	h.Write([]byte(fmt.Sprintf("ERROR: %s\n",err))) //Send an error back to the client
-	// }
-
-	// Once we have the HTTP request, retrieve and return the request queries
-	err = retrieveQueryParams(h)
+	//Route the request
+	err = routeRequest(h)
 	if err != nil { //If there's an error while retrieving the queries
 		h.Write([]byte(fmt.Sprintf("ERROR: %s\n",err))) //Send an error back to the client
 	}
@@ -53,8 +35,8 @@ func taulistendpoint(e event.Event) uint32 {
 }
 
 
-// Retrieve the params from the request query
-func retrieveQueryParams(h event.HttpEvent) error {
+// Route the request
+func routeRequest(h event.HttpEvent) error {
 	// Get the queries from the http event
 	queries := h.Query()
 	
@@ -70,6 +52,7 @@ func retrieveQueryParams(h event.HttpEvent) error {
 		return errors.New("You must include an endpoint query parameter with your request.")
 	}
 
+	//Route to different funcs based on the selected endpoint ghetto routing
 	switch endpoint { 
 		case "categories":
 			err = getCategories(&h)
@@ -104,7 +87,7 @@ type Categories struct {
 type AddCategoryRequest struct {
 	category  string
 }
-//export addCategory
+
 func addCategory(h *event.HttpEvent) error {
 	// Open the database
 	db, err := database.New("taulistdb")
@@ -173,10 +156,10 @@ func addCategory(h *event.HttpEvent) error {
 	return nil
 }
 
-//export getCategories
+
 func getCategories(h *event.HttpEvent) error {
 	//Get the test database
-	db, err := database.New("testdb")
+	db, err := database.New("taulistdb")
 	if err != nil { //If we encounter an error getting the database
 		return err //Return the error
 	}
