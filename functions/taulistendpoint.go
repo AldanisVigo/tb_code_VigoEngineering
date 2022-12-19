@@ -119,36 +119,7 @@ func addCategory(h event.HttpEvent) error {
 		return err
 	}
 
-	h.Write([]byte(incomingCategoryRequest.Category))
-
-	// Open the database
-	// db, err := database.New("taulistdb")
-	// if err != nil {
-	// 	return err
-	// }
-
-	// Retrieve the new category from the request
-	requestBody := h.Body()
-	requestBodyData, err := ioutil.ReadAll(requestBody)
-	if err != nil {
-		return err
-	}
-
-	//Close the body
-	err = requestBody.Close() 
-	if err != nil { //If we encounter an error closing the request body
-		return err //Return the error
-	}
-
-	//Pull the request from the body data
-	req := &AddCategoryRequest{}
-	err = req.UnmarshalJSON(requestBodyData)
-	if err != nil {
-		return err
-	}
-
-	h.Write([]byte(requestBodyData))
-	h.Write([]byte(req.Category))
+	// h.Write([]byte(incomingCategoryRequest.Category))	
 	// Get the categories from the database
 	currentCats,err := db.Get("categories")
 	if err != nil {
@@ -167,7 +138,7 @@ func addCategory(h event.HttpEvent) error {
 	}
 
 	// Add the new category at the next available key value
-	cats.Categories[len(cats.Categories) + 1] = newCat
+	cats.Categories[len(cats.Categories) + 1] = incomingCategoryRequest.Category
 
 	// Convert the list back to json
 	j,err := cats.MarshalJSON()
