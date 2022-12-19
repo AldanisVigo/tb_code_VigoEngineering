@@ -4,8 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"strings"
 
 	"bitbucket.org/taubyte/go-sdk/database"
+	"bitbucket.org/taubyte/go-sdk/errno"
 	"bitbucket.org/taubyte/go-sdk/event"
 )
 
@@ -16,7 +18,6 @@ import (
 //easyjson:json
 type Categories struct {
 	Categories map[int]string
-	CategoriesArray []string
 }
 
 //easyjson:json
@@ -42,6 +43,11 @@ type Ad struct {
 	PosterID string
 	City string
 	State string
+}
+
+//easyjson:json
+type Ads struct {
+	Ads []Ad
 }
 
 //export taulistendpoint
@@ -90,14 +96,11 @@ func routeRequest(h event.HttpEvent) error {
 			if err != nil {
 				return err
 			}
-
-			return nil
 		case "addcategory": 
 			err = addCategory(h)
 			if err != nil {
 				return err
 			}
-			return nil
 		case "ads":
 			err = getAds(h)
 			if err != nil {
@@ -107,9 +110,7 @@ func routeRequest(h event.HttpEvent) error {
 			_,err = h.Write([]byte("{ \"error\" : \"Invalid endpoint requested.\"}"))
 			if err != nil { 
 				return err
-			}
-			
-			return nil
+			}			
 	}
 
 	//Execution sucessful
@@ -118,10 +119,10 @@ func routeRequest(h event.HttpEvent) error {
 
 func getAds(h event.HttpEvent) error {
 	// Get a reference to the database
-	// db, err := database.New("taulistdb")
-	// if err != nil {
-	// 	return err
-	// }
+	db, err := database.New("taulistdb")
+	if err != nil {
+		return err
+	}
 
 	// Get the Body in the HTTP object
 	body := h.Body()
@@ -148,8 +149,25 @@ func getAds(h event.HttpEvent) error {
 		return err
 	}
 
-	h.Write([]byte("City: " + incomingAdsRequest.City + " State: " + incomingAdsRequest.State))
+	// h.Write([]byte("City: " + incomingAdsRequest.City + " State: " + incomingAdsRequest.State))
+	//Get the ads at the current city and state from the database
+	adsForCityAndState,err := db.Get("ads/" + incomingAdsRequest.State + "/" + incomingAdsRequest.City)
+	if err != nil {
+		if strings.Contains(err.Error(), errno.ErrorDatabaseKeyNotFound.String()) { //If the key was not found, that means there's not ads for this state and city
+			h.Write([]byte(`{ "ads" : [] }`))
+			return nil
+		}else{
+			return err
+		}
+	}
 
+	//Write the data back to the client that requested it
+	_,err = h.Write(adsForCityAndState)
+	if err != nil {
+		return err
+	}
+
+	//Execution successful
 	return nil
 }
 
