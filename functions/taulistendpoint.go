@@ -72,10 +72,32 @@ func routeRequest(h event.HttpEvent) error {
 
 			return nil
 		case "addcategory": 
-			err = addCategory(h)
+			// err = addCategory(h)
+			// if err != nil {
+			// 	return err
+			// }
+			body := h.Body()
+			bodyData, err := ioutil.ReadAll(body)
 			if err != nil {
 				return err
 			}
+
+			//Close the body
+			err = body.Close()
+			if err != nil {
+				return err
+			}
+
+			//Create an empty user
+			incomingCategoryRequest := &AddCategoryRequest{}
+
+			//Fill it with the unmarshalled json version of the body data
+			err = incomingCategoryRequest.UnmarshalJSON(bodyData)
+			if err != nil {
+				return err
+			}
+
+			h.Write([]byte(incomingCategoryRequest.Category))
 
 			return nil
 		default:
