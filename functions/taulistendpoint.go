@@ -105,6 +105,11 @@ func routeRequest(h event.HttpEvent) error {
 			if err != nil {
 				return err
 			}
+		case "removecategory":
+			err = removeCategory(h)
+			if err != nil {
+				return err
+			}
 		case "ads":
 			err = getAds(h)
 			if err != nil {
@@ -254,6 +259,77 @@ func sliceContains(s *[]string,v string) (bool, error) {
 	}
 	return exists, nil
 }
+
+//easyjson:json
+type DeleteCategoryRequest struct {
+	Index int
+}
+
+func RemoveIndex(s []string, index int) []string {
+    return append(s[:index], s[index+1:]...)
+}
+
+func removeCategory(h event.HttpEvent) error {
+	// Grab the body of the request from the http event
+	body := h.Body()
+
+	bodyData,err := ioutil.ReadAll(body)
+	if err != nil {
+		return err
+	}
+
+	// Sereialize the body data into a DeleteCategoryRequest
+	deleteRequest := &DeleteCategoryRequest{}
+	err = deleteRequest.UnmarshalJSON(bodyData)
+	if err != nil {
+		return err
+	}
+
+	// Grab the database
+	db,err := database.New("taulistdb")
+	if err != nil {
+		return err
+	}
+
+	//Grab the json data for categories from the database
+	categoriesJson,err := db.Get("categories")
+	if err != nil {
+		return err
+	}
+
+	// Seriealize the json data into a Categories object
+	categoriesObj := &Categories{}
+
+	err = categoriesObj.UnmarshalJSON(categoriesJson)
+	if err != nil {
+		return err
+	}
+
+	// Remove the item at the given index
+	categoriesObj.Categories = RemoveIndex(categoriesObj.Categories,deleteRequest.Index)
+
+	// Deserialize the object back into json
+	updatedCategoriesJson, err := categoriesObj.MarshalJSON()
+	if err != nil {
+		return err
+	}
+
+	// Save the json into the database for the categories key
+	err = db.Put("categories",updatedCategoriesJson)
+	if err != nil {
+		return err
+	}
+
+	//Close the database
+	err = db.Close()
+	if err != nil {
+		return err
+	}
+
+	// Execution successful
+	return nil
+}
+
 
 func addCategory(h event.HttpEvent) error {
 	// Get a reference to the database
