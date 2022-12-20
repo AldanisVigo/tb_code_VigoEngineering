@@ -324,6 +324,11 @@ func resetCategories(h event.HttpEvent) error {
 		return err
 	}
 
+	_,err = h.Write([]byte(`{ "reset" : "true" }`))
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
