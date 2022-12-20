@@ -106,12 +106,73 @@ func routeRequest(h event.HttpEvent) error {
 			if err != nil {
 				return err
 			}
+		case "postad":
+			err = addAd(h)
+			if err != nil {
+				return err
+			}
 		default:
 			_,err = h.Write([]byte("{ \"error\" : \"Invalid endpoint requested.\"}"))
 			if err != nil { 
 				return err
 			}			
 	}
+
+	// Execution sucessful
+	return nil
+}
+
+func addAd(h event.HttpEvent) error {
+	// Get the Body of the HTTP object
+	body := h.Body()
+	bodyData, err  := ioutil.ReadAll(body)
+	if err != nil {
+		return err
+	}
+
+	//Close the body
+	err = body.Close()
+	if err != nil {
+		return err
+	}
+
+	//Create an instance of an empty ad
+	incomingAd := &Ad{}
+
+	//Unmarshal the incoming bodyData into the ad object
+	err = incomingAd.UnmarshalJSON(bodyData)
+	if err != nil {
+		return err
+	}
+
+	//Open the database
+	db,err := database.New("taulistdb")
+	if err != nil {
+		return err
+	}
+
+	//Use the database to pull the data for the city and state
+	existingAdsData, err := db.Get("ads/" + incomingAd.State + "/" + incomingAd.City)
+
+	//Unmarshal the existing ads into an Ads object
+	existingAds := &Ads{
+		Ads : []Ad{},
+	}
+
+	//Unmarshal the existing ads into an ads 
+	existingAds.UnmarshalJSON(existingAdsData)
+
+	//Add the new ad to the existing list of ads
+	existingAds.Ads = append(existingAds.Ads,*incomingAd)
+
+	//Serialize the exising ads back into json
+	existingAdsJson, err := existingAds.MarshalJSON()
+	if err != nil {
+		return err
+	}
+
+	//Write the existing ads back to the database
+	err = db.Put("ads/" + incomingAd.State + "/" + incomingAd.City,existingAdsJson)
 
 	//Execution sucessful
 	return nil
@@ -154,10 +215,10 @@ func getAds(h event.HttpEvent) error {
 	adsForCityAndState,err := db.Get("ads/" + incomingAdsRequest.State + "/" + incomingAdsRequest.City)
 	if err != nil {
 		if strings.Contains(err.Error(), errno.ErrorDatabaseKeyNotFound.String()) { //If the key was not found, that means there's not ads for this state and city
-			h.Write([]byte(`{ "ads" : [] }`))
-			return nil
-		}else{
-			return err
+			h.Write([]byte(`{ "ads" : [] }`)) //Return an empty array to the client
+			return nil 
+		}else{ //Otherwise
+			return err //Return the error
 		}
 	}
 
