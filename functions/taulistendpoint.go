@@ -248,7 +248,7 @@ func sliceContains(s *[]string,v string) (bool, error) {
 
  	exists := false
 	for _,val := range *s {
-		if strings.Compare(val,v) == 0 {
+		if val == v {
 			exists = true
 		}
 	}
