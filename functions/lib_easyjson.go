@@ -50,6 +50,13 @@ func (* Categories ) UnmarshalEasyJSON(l *jlexer.Lexer) {}
 
 type EasyJSON_exporter_Categories *Categories
 
+func ( CategoryUpdateRequest ) MarshalJSON() ([]byte, error) { return nil, nil }
+func (* CategoryUpdateRequest ) UnmarshalJSON([]byte) error { return nil }
+func ( CategoryUpdateRequest ) MarshalEasyJSON(w *jwriter.Writer) {}
+func (* CategoryUpdateRequest ) UnmarshalEasyJSON(l *jlexer.Lexer) {}
+
+type EasyJSON_exporter_CategoryUpdateRequest *CategoryUpdateRequest
+
 func ( DeleteCategoryRequest ) MarshalJSON() ([]byte, error) { return nil, nil }
 func (* DeleteCategoryRequest ) UnmarshalJSON([]byte) error { return nil }
 func ( DeleteCategoryRequest ) MarshalEasyJSON(w *jwriter.Writer) {}

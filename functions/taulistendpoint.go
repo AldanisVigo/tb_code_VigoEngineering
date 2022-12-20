@@ -110,6 +110,11 @@ func routeRequest(h event.HttpEvent) error {
 			if err != nil {
 				return err
 			}
+		case "updatecategory":
+			err = updateCategory(h)
+			if err != nil {
+				return err
+			}
 		case "ads":
 			err = getAds(h)
 			if err != nil {
@@ -322,6 +327,74 @@ func removeCategory(h event.HttpEvent) error {
 
 	//Close the database
 	err = db.Close()
+	if err != nil {
+		return err
+	}
+
+	// Execution successful
+	return nil
+}
+
+
+//easyjson:json
+type CategoryUpdateRequest struct {
+	Index int
+	Category string
+}
+
+func updateCategory(h event.HttpEvent) error {
+	// Get the body of the http event
+	body := h.Body()
+
+	// Get the data from the body of the event
+	bodyData,err := ioutil.ReadAll(body)
+	if err != nil {
+		return err
+	}
+
+	// Seialize the body's data into a CategoryUpdateRequest object
+	updateRequest := &CategoryUpdateRequest{}
+	err = updateRequest.UnmarshalJSON(bodyData)
+	if err != nil {
+		return err
+	}
+
+	// Get the database
+	db, err := database.New("taulistdb")
+	if err != nil {
+		return err
+	}
+
+	// Get the categories json from the database
+	categoriesJson, err := db.Get("categories")
+	if err != nil {
+		return err
+	}
+
+	// Serialize the categories json into a Categories object
+	categoriesObj := &Categories{}
+	err = categoriesObj.UnmarshalJSON(categoriesJson)
+	if err != nil {
+		return err
+	}
+
+	// Update the value in the categoriesObj at the index
+	categoriesObj.Categories[updateRequest.Index] = updateRequest.Category
+
+	// Deserialize the categoriesObj back to json
+	updatedCategories,err  := categoriesObj.MarshalJSON()
+	if err != nil {
+		return err
+	}
+
+	// Save the the updated categories json back to the database
+	err = db.Put("categories", updatedCategories)
+	if err != nil {
+		return err
+	}
+
+	// Return the updated list back to the client
+	_,err = h.Write(updatedCategories)
 	if err != nil {
 		return err
 	}
