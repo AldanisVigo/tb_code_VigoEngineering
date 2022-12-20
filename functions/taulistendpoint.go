@@ -65,7 +65,7 @@ func taulistendpoint(e event.Event) uint32 {
 		h.Headers().Set("Content-Type","application/json")
 		
 		//Write a response
-		h.Write([]byte(`{ "Routing Error" : "` + fmt.Sprintf("Error while routing your request: %s\n",err) + `" }`)) // Send an error back to the client
+		h.Write([]byte(fmt.Sprintf(`{ "Error" : "Error while routing your request: %s\n" }`,err))) // Send an error back to the client
 	}
 
 	// Successful execution
