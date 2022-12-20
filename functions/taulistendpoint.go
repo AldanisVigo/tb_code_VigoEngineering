@@ -50,6 +50,7 @@ type Ads struct {
 	Ads []Ad
 }
 
+
 //export taulistendpoint
 func taulistendpoint(e event.Event) uint32 {
 	// Get the HTTP request
@@ -64,7 +65,7 @@ func taulistendpoint(e event.Event) uint32 {
 		// Set the response header's content type to application/json
 		h.Headers().Set("Content-Type","application/json")
 		
-		//Write a response
+		// Write a response
 		h.Write([]byte(fmt.Sprintf(`{ "Error" : "Error while routing your request: %s\n" }`,err))) // Send an error back to the client
 	}
 
@@ -138,51 +139,51 @@ func addAd(h event.HttpEvent) error {
 		return err
 	}
 
-	//Close the body
+	// Close the body
 	err = body.Close()
 	if err != nil {
 		return err
 	}
 
-	//Create an instance of an empty ad
+	// Create an instance of an empty ad
 	incomingAd := &Ad{}
 
-	//Unmarshal the incoming bodyData into the ad object
+	// Unmarshal the incoming bodyData into the ad object
 	err = incomingAd.UnmarshalJSON(bodyData)
 	if err != nil {
 		return err
 	}
 
-	//Open the database
+	// Open the database
 	db,err := database.New("taulistdb")
 	if err != nil {
 		return err
 	}
 
-	//Use the database to pull the data for the city and state
+	// Use the database to pull the data for the city and state
 	existingAdsData, err := db.Get("ads/" + incomingAd.State + "/" + incomingAd.City)
 
-	//Unmarshal the existing ads into an Ads object
+	// Unmarshal the existing ads into an Ads object
 	existingAds := &Ads{
 		Ads : []Ad{},
 	}
 
-	//Unmarshal the existing ads into an ads 
+	// Unmarshal the existing ads into an ads 
 	existingAds.UnmarshalJSON(existingAdsData)
 
-	//Add the new ad to the existing list of ads
+	// Add the new ad to the existing list of ads
 	existingAds.Ads = append(existingAds.Ads,*incomingAd)
 
-	//Serialize the exising ads back into json
+	// Serialize the exising ads back into json
 	existingAdsJson, err := existingAds.MarshalJSON()
 	if err != nil {
 		return err
 	}
 
-	//Write the existing ads back to the database
+	// Write the existing ads back to the database
 	err = db.Put("ads/" + incomingAd.State + "/" + incomingAd.City,existingAdsJson)
 
-	//Execution sucessful
+	// Execution sucessful
 	return nil
 }
 
@@ -200,44 +201,58 @@ func getAds(h event.HttpEvent) error {
 		return err
 	}
 
-	//Close the body
+	// Close the body
 	err = body.Close()
 	if err != nil {
 		return err
 	}
 
-	//Create an empty incoming ads request
+	// Create an empty incoming ads request
 	incomingAdsRequest := &AdsRequest{
 		City : "",
 		State : "",
 	}
 
-	//Unmarshal the incoming body data int a AdsRequest
+	// Unmarshal the incoming body data int a AdsRequest
 	err = incomingAdsRequest.UnmarshalJSON(bodyData)
 	if err != nil {
 		return err
 	}
 
 	// h.Write([]byte("City: " + incomingAdsRequest.City + " State: " + incomingAdsRequest.State))
-	//Get the ads at the current city and state from the database
+	// Get the ads at the current city and state from the database
 	adsForCityAndState,err := db.Get("ads/" + incomingAdsRequest.State + "/" + incomingAdsRequest.City)
 	if err != nil {
-		if strings.Contains(err.Error(), errno.ErrorDatabaseKeyNotFound.String()) { //If the key was not found, that means there's not ads for this state and city
-			h.Write([]byte(`{ "ads" : [] }`)) //Return an empty array to the client
+		if strings.Contains(err.Error(), errno.ErrorDatabaseKeyNotFound.String()) { // If the key was not found, that means there's not ads for this state and city
+			h.Write([]byte(`{ "ads" : [] }`)) // Return an empty array to the client
 			return nil 
-		}else{ //Otherwise
-			return err //Return the error
+		}else{ // Otherwise
+			return err // Return the error
 		}
 	}
 
-	//Write the data back to the client that requested it
+	// Write the data back to the client that requested it
 	_,err = h.Write(adsForCityAndState)
 	if err != nil {
 		return err
 	}
 
-	//Execution successful
+	// Execution successful
 	return nil
+}
+
+func sliceContains(s *[]string,v string) (bool, error) {
+ 	if len(v) == 0 {
+		return false, errors.New("Please provide a value to check for in the slice.")
+	}
+
+ 	exists := false
+	for _,val := range *s {
+		if strings.Compare(val,v) == 0 {
+			exists = true
+		}
+	}
+	return exists, nil
 }
 
 func addCategory(h event.HttpEvent) error {
@@ -272,8 +287,8 @@ func addCategory(h event.HttpEvent) error {
 	// Get the categories from the database
 	currentCats,err := db.Get("categories")
 	if err != nil {
-		if err.Error() == errno.ErrorDatabaseKeyNotFound.String() {
-			//Ignore this error just keep trucking
+		if strings.Contains(err.Error(), errno.ErrorDatabaseKeyNotFound.String()) { // If the key was not found, that means there's not ads for this state and city
+			// Ignore this error just keep trucking
 		}else{
 			return err
 		}
@@ -283,14 +298,24 @@ func addCategory(h event.HttpEvent) error {
 	cats := &Categories{
         Categories : []string{},
     }
-
 	err = cats.UnmarshalJSON(currentCats)
 	if err != nil {
 		return err
 	}
 
-	// Add the new category at the next available key value
-	cats.Categories = append(cats.Categories,incomingCategoryRequest.Category)
+	//Check if the category they want to add already exist in the data structure
+	exists, err := sliceContains(&cats.Categories,incomingCategoryRequest.Category) 
+	if err != nil {
+		return err
+	}
+	
+	if !exists {
+		// Add the new category at the next available key value
+		cats.Categories = append(cats.Categories,incomingCategoryRequest.Category)
+	}else{ //If the category already exists
+		//Return an error to the client letting them know the category already exists.
+		return errors.New("The category you are attempting to add already exists.")	
+	}
 
 	// Convert the list back to json
 	j,err := cats.MarshalJSON()
@@ -318,19 +343,19 @@ func addCategory(h event.HttpEvent) error {
 }
 
 func resetCategories(h event.HttpEvent) error {
-	//Ge the test database
+	// Ge the test database
 	db, err := database.New("taulistdb")
 	if err != nil {
 		return err
 	}
 
-	//Delete the categories
+	// Delete the categories
 	err = db.Delete("categories")
 	if err != nil {
 		return err
 	}
 
-	//Write the reset response back to the client
+	// Write the reset response back to the client
 	_,err = h.Write([]byte(`{ "reset" : "true" }`))
 	if err != nil {
 		return err
@@ -341,33 +366,37 @@ func resetCategories(h event.HttpEvent) error {
 
 
 func getCategories(h event.HttpEvent) error {
-	//Get the test database
+	// Get the test database
 	db, err := database.New("taulistdb")
-	if err != nil { //If we encounter an error getting the database
-		return err //Return the error
+	if err != nil { // If we encounter an error getting the database
+		return err // Return the error
 	}
 
-	//Get the user JSON from the the database
+	// Get the user JSON from the the database
 	data, err := db.Get("categories")
-	if err != nil { //If we encounter an error getting the current user
-		return err //Return an error
+	if err != nil { // If we encounter an error getting the current user
+		if strings.Contains(err.Error(), errno.ErrorDatabaseKeyNotFound.String()) { // If the key was not found, that means there's not ads for this state and city
+			// Ignore this error
+		} else {
+			return err // Return an error
+		}
 	}
 	
-	//Close the db
+	// Close the db
 	err = db.Close()
-	if err != nil { //If we encounter an error while closing the database
-		return err //Return the error
+	if err != nil { // If we encounter an error while closing the database
+		return err // Return the error
 	}
 	
-	//Return a response to the caller
+	// Return a response to the caller
 	w,err := h.Write([]byte(data))
 	if err != nil {
 		return err
 	}
 
-	//Print the results of the write
+	// Print the results of the write
 	fmt.Print(w)
 
-	//Execution successful, return nil for error
+	// Execution successful, return nil for error
   	return nil
 }
