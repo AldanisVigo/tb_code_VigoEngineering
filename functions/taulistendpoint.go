@@ -111,6 +111,11 @@ func routeRequest(h event.HttpEvent) error {
 			if err != nil {
 				return err
 			}
+		case "resetcategories":
+			err = resetCategories(h)
+			if err != nil {
+				return err
+			}
 		default:
 			_,err = h.Write([]byte("{ \"error\" : \"Invalid endpoint requested.\"}"))
 			if err != nil { 
@@ -303,6 +308,22 @@ func addCategory(h event.HttpEvent) error {
 	h.Write(j)
 
 	// Return nil for error
+	return nil
+}
+
+func resetCategories(h event.HttpEvent) error {
+	//Ge the test database
+	db, err := database.New("taulistdb")
+	if err != nil {
+		return err
+	}
+
+	//Delete the categories
+	err = db.Delete("categories")
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
