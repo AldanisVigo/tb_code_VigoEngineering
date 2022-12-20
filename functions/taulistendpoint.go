@@ -17,7 +17,7 @@ import (
 
 //easyjson:json
 type Categories struct {
-	Categories map[int]string
+	Categories []string
 }
 
 //easyjson:json
@@ -269,7 +269,7 @@ func addCategory(h event.HttpEvent) error {
 
 	// Retrieve the existing list of categories
 	cats := &Categories{
-        Categories : map[int]string{
+        Categories : []string{
 		},
     }
 
@@ -279,7 +279,7 @@ func addCategory(h event.HttpEvent) error {
 	}
 
 	// Add the new category at the next available key value
-	cats.Categories[len(cats.Categories) + 1] = incomingCategoryRequest.Category
+	cats.Categories = append(cats.Categories,incomingCategoryRequest.Category)
 
 	// Convert the list back to json
 	j,err := cats.MarshalJSON()
