@@ -62,9 +62,10 @@ func taulistendpoint(e event.Event) uint32 {
 	err = routeRequest(h)
 	if err != nil { // If there's an error while retrieving the queries
 		// Set the response header's content type to application/json
-		err = h.Headers().Set("Content-Type","application/json")
-
-		h.Write([]byte(fmt.Sprintf("ERROR: %s\n",err))) // Send an error back to the client
+		h.Headers().Set("Content-Type","application/json")
+		
+		//Write a response
+		h.Write([]byte(`{ "Routing Error" : "` + fmt.Sprintf("Error while routing your request: %s\n",err) + `" }`)) // Send an error back to the client
 	}
 
 	// Successful execution
@@ -88,6 +89,8 @@ func routeRequest(h event.HttpEvent) error {
 		// Return a new error letting the user know what happened
 		return errors.New("You must include an endpoint query parameter with your request.")
 	}
+
+	// Set he content type 
 
 	// Route to different funcs based on the selected endpoint ghetto routing
 	switch endpoint { 
@@ -274,8 +277,7 @@ func addCategory(h event.HttpEvent) error {
 
 	// Retrieve the existing list of categories
 	cats := &Categories{
-        Categories : []string{
-		},
+        Categories : []string{},
     }
 
 	err = cats.UnmarshalJSON(currentCats)
@@ -324,6 +326,7 @@ func resetCategories(h event.HttpEvent) error {
 		return err
 	}
 
+	//Write the reset response back to the client
 	_,err = h.Write([]byte(`{ "reset" : "true" }`))
 	if err != nil {
 		return err
