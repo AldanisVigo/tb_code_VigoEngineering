@@ -272,7 +272,11 @@ func addCategory(h event.HttpEvent) error {
 	// Get the categories from the database
 	currentCats,err := db.Get("categories")
 	if err != nil {
-		return err
+		if err.Error() == errno.ErrorDatabaseKeyNotFound.String() {
+			//Ignore this error just keep trucking
+		}else{
+			return err
+		}
 	}
 
 	// Retrieve the existing list of categories
