@@ -223,7 +223,7 @@ func getAds(h event.HttpEvent) error {
 	incomingAdsRequest := &AdsRequest{
 		City : "",
 		State : "",
-		Category : ""
+		Category : "",
 	}
 
 	// Unmarshal the incoming body data int a AdsRequest
@@ -300,7 +300,7 @@ func removeCategory(h event.HttpEvent) error {
 	}
 
 	//Grab the json data for categories from the database
-	categoriesJson,err := db.Get("categories")
+	categoriesJson,err := db.Get("cats")
 	if err != nil {
 		return err
 	}
@@ -323,7 +323,7 @@ func removeCategory(h event.HttpEvent) error {
 	}
 
 	// Save the json into the database for the categories key
-	err = db.Put("categories",updatedCategoriesJson)
+	err = db.Put("cats",updatedCategoriesJson)
 	if err != nil {
 		return err
 	}
@@ -369,7 +369,7 @@ func updateCategory(h event.HttpEvent) error {
 	}
 
 	// Get the categories json from the database
-	categoriesJson, err := db.Get("categories")
+	categoriesJson, err := db.Get("cats")
 	if err != nil {
 		return err
 	}
@@ -391,7 +391,7 @@ func updateCategory(h event.HttpEvent) error {
 	}
 
 	// Save the the updated categories json back to the database
-	err = db.Put("categories", updatedCategories)
+	err = db.Put("cats", updatedCategories)
 	if err != nil {
 		return err
 	}
@@ -437,7 +437,7 @@ func addCategory(h event.HttpEvent) error {
 	}
 	
 	// Get the categories from the database
-	currentCats,err := db.Get("categories")
+	currentCats,err := db.Get("cats")
 	if err != nil {
 		if strings.Contains(err.Error(), errno.ErrorDatabaseKeyNotFound.String()) { // If the key was not found, that means there's not ads for this state and city
 			// Ignore this error just keep trucking
@@ -476,7 +476,7 @@ func addCategory(h event.HttpEvent) error {
 	}
 
 	// Write the list back to the database
-	err = db.Put("categories",j)
+	err = db.Put("cats",j)
 	if err != nil {
 		return err
 	}
@@ -502,7 +502,7 @@ func resetCategories(h event.HttpEvent) error {
 	}
 
 	// Delete the categories
-	err = db.Delete("categories")
+	err = db.Delete("cats")
 	if err != nil {
 		return err
 	}
@@ -525,7 +525,7 @@ func getCategories(h event.HttpEvent) error {
 	}
 
 	// Get the user JSON from the the database
-	data, err := db.Get("categories")
+	data, err := db.Get("cats")
 	if err != nil { // If we encounter an error getting the current user
 		if strings.Contains(err.Error(), errno.ErrorDatabaseKeyNotFound.String()) { // If the key was not found, that means there's not ads for this state and city
 			// Ignore this error
