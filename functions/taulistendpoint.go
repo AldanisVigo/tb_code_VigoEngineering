@@ -533,6 +533,24 @@ func getCategories(h event.HttpEvent) error {
 	if err != nil { // If we encounter an error getting the current user
 		if strings.Contains(err.Error(), errno.ErrorDatabaseKeyNotFound.String()) { // If the key was not found, that means there's not ads for this state and city
 			// Ignore this error
+			_,err := h.Write([]byte(`{"Categories" : [], "Error" : "Categories does not exist, creating now"}`))
+			if err != nil {
+				return err
+			}
+			
+			emptyCats := &Categories{
+				Categories : []string{},
+			}
+
+			emptyCatsJson,err := emptyCats.MarshalJSON()
+			if err != nil {
+				return err
+			}
+
+			err = db.Put("categories",emptyCatsJson)
+			if err != nil {
+				return err
+			}
 		} else {
 			return err // Return an error
 		}
