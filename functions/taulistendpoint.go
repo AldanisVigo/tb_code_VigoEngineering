@@ -29,6 +29,7 @@ type AddCategoryRequest struct {
 type AdsRequest struct {
 	State string
 	City string
+	Category string
 }
 
 //easyjson:json
@@ -43,6 +44,7 @@ type Ad struct {
 	PosterID string
 	City string
 	State string
+	Category string
 }
 
 //easyjson:json
@@ -170,8 +172,8 @@ func addAd(h event.HttpEvent) error {
 		return err
 	}
 
-	// Use the database to pull the data for the city and state
-	existingAdsData, err := db.Get("ads/" + incomingAd.State + "/" + incomingAd.City)
+	// Use the database to pull the data for the city and state and category
+	existingAdsData, err := db.Get("ads/" + incomingAd.State + "/" + incomingAd.City + "/" + incomingAd.Category)
 
 	// Unmarshal the existing ads into an Ads object
 	existingAds := &Ads{
@@ -191,7 +193,7 @@ func addAd(h event.HttpEvent) error {
 	}
 
 	// Write the existing ads back to the database
-	err = db.Put("ads/" + incomingAd.State + "/" + incomingAd.City,existingAdsJson)
+	err = db.Put("ads/" + incomingAd.State + "/" + incomingAd.City + "/" + incomingAd.Category,existingAdsJson)
 
 	// Execution sucessful
 	return nil
@@ -221,6 +223,7 @@ func getAds(h event.HttpEvent) error {
 	incomingAdsRequest := &AdsRequest{
 		City : "",
 		State : "",
+		Category : ""
 	}
 
 	// Unmarshal the incoming body data int a AdsRequest
@@ -231,7 +234,7 @@ func getAds(h event.HttpEvent) error {
 
 	// h.Write([]byte("City: " + incomingAdsRequest.City + " State: " + incomingAdsRequest.State))
 	// Get the ads at the current city and state from the database
-	adsForCityAndState,err := db.Get("ads/" + incomingAdsRequest.State + "/" + incomingAdsRequest.City)
+	adsForCityAndState,err := db.Get("ads/" + incomingAdsRequest.State + "/" + incomingAdsRequest.City + "/" + incomingAdsRequest.Category)
 	if err != nil {
 		if strings.Contains(err.Error(), errno.ErrorDatabaseKeyNotFound.String()) { // If the key was not found, that means there's not ads for this state and city
 			h.Write([]byte(`{ "ads" : [] }`)) // Return an empty array to the client
