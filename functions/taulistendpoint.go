@@ -537,16 +537,25 @@ func getCategories(h event.HttpEvent) error {
 			if err != nil {
 				return err
 			}
-			
+
+			//Create the default categories if the categories do not exist in the db yet
 			emptyCats := &Categories{
-				Categories : []string{},
+				Categories : []string{
+					"Cars",
+					"Apartments",
+					"Books",
+					"For Sale",
+					"Free",
+				},
 			}
 
+			//Serialize them into json
 			emptyCatsJson,err := emptyCats.MarshalJSON()
 			if err != nil {
 				return err
 			}
 
+			//Put them in the db
 			err = db.Put("categories",emptyCatsJson)
 			if err != nil {
 				return err
