@@ -300,7 +300,7 @@ func removeCategory(h event.HttpEvent) error {
 	}
 
 	//Grab the json data for categories from the database
-	categoriesJson,err := db.Get("cats")
+	categoriesJson,err := db.Get("categories")
 	if err != nil {
 		return err
 	}
@@ -323,7 +323,7 @@ func removeCategory(h event.HttpEvent) error {
 	}
 
 	// Save the json into the database for the categories key
-	err = db.Put("cats",updatedCategoriesJson)
+	err = db.Put("categories",updatedCategoriesJson)
 	if err != nil {
 		return err
 	}
@@ -369,13 +369,15 @@ func updateCategory(h event.HttpEvent) error {
 	}
 
 	// Get the categories json from the database
-	categoriesJson, err := db.Get("cats")
+	categoriesJson, err := db.Get("categories")
 	if err != nil {
 		return err
 	}
 
 	// Serialize the categories json into a Categories object
-	categoriesObj := &Categories{}
+	categoriesObj := &Categories{
+		Categories : []string{},
+	}
 	err = categoriesObj.UnmarshalJSON(categoriesJson)
 	if err != nil {
 		return err
@@ -391,7 +393,7 @@ func updateCategory(h event.HttpEvent) error {
 	}
 
 	// Save the the updated categories json back to the database
-	err = db.Put("cats", updatedCategories)
+	err = db.Put("categories", updatedCategories)
 	if err != nil {
 		return err
 	}
@@ -437,7 +439,7 @@ func addCategory(h event.HttpEvent) error {
 	}
 	
 	// Get the categories from the database
-	currentCats,err := db.Get("cats")
+	currentcategories,err := db.Get("categories")
 	if err != nil {
 		if strings.Contains(err.Error(), errno.ErrorDatabaseKeyNotFound.String()) { // If the key was not found, that means there's not ads for this state and city
 			// Ignore this error just keep trucking
@@ -447,36 +449,36 @@ func addCategory(h event.HttpEvent) error {
 	}
 
 	// Retrieve the existing list of categories
-	cats := &Categories{
+	categories := &Categories{
         Categories : []string{},
     }
-	err = cats.UnmarshalJSON(currentCats)
+	err = categories.UnmarshalJSON(currentcategories)
 	if err != nil {
 		return err
 	}
 
 	//Check if the category they want to add already exist in the data structure
-	exists, err := sliceContains(&cats.Categories,incomingCategoryRequest.Category) 
+	exists, err := sliceContains(&categories.Categories,incomingCategoryRequest.Category) 
 	if err != nil {
 		return err
 	}
 	
 	if !exists {
 		// Add the new category at the next available key value
-		cats.Categories = append(cats.Categories,incomingCategoryRequest.Category)
+		categories.Categories = append(categories.Categories,incomingCategoryRequest.Category)
 	}else{ //If the category already exists
 		//Return an error to the client letting them know the category already exists.
 		return errors.New("The category you are attempting to add already exists.")	
 	}
 
 	// Convert the list back to json
-	j,err := cats.MarshalJSON()
+	j,err := categories.MarshalJSON()
 	if err != nil {
 		return err
 	}
 
 	// Write the list back to the database
-	err = db.Put("cats",j)
+	err = db.Put("categories",j)
 	if err != nil {
 		return err
 	}
@@ -502,7 +504,7 @@ func resetCategories(h event.HttpEvent) error {
 	}
 
 	// Delete the categories
-	err = db.Delete("cats")
+	err = db.Delete("categories")
 	if err != nil {
 		return err
 	}
@@ -525,7 +527,7 @@ func getCategories(h event.HttpEvent) error {
 	}
 
 	// Get the user JSON from the the database
-	data, err := db.Get("cats")
+	data, err := db.Get("categories")
 	if err != nil { // If we encounter an error getting the current user
 		if strings.Contains(err.Error(), errno.ErrorDatabaseKeyNotFound.String()) { // If the key was not found, that means there's not ads for this state and city
 			// Ignore this error
