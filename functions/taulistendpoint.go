@@ -392,16 +392,18 @@ func updateCategory(h event.HttpEvent) error {
 		return err
 	}
 
-	// Save the the updated categories json back to the database
-	err = db.Put("categories", updatedCategories)
-	if err != nil {
-		return err
-	}
+	if len(updatedCategories) > 0 {
+		// Save the the updated categories json back to the database
+		err = db.Put("categories", updatedCategories)
+		if err != nil {
+			return err
+		}
 
-	// Return the updated list back to the client
-	_,err = h.Write(updatedCategories)
-	if err != nil {
-		return err
+		// Return the updated list back to the client
+		_,err = h.Write(updatedCategories)
+		if err != nil {
+			return err
+		}
 	}
 
 	// Execution successful
@@ -541,15 +543,20 @@ func getCategories(h event.HttpEvent) error {
 	if err != nil { // If we encounter an error while closing the database
 		return err // Return the error
 	}
-	
-	// Return a response to the caller
-	w,err := h.Write([]byte(data))
-	if err != nil {
-		return err
-	}
 
-	// Print the results of the write
-	fmt.Print(w)
+
+	if len(data) > 0 {
+		// Return a response to the caller
+		_,err := h.Write([]byte(data))
+		if err != nil {
+			return err
+		}
+	}else{
+		_,err := h.Write([]byte(`{"Categories" : [] }`))
+		if err != nil {
+			return err
+		}
+	}
 
 	// Execution successful, return nil for error
   	return nil
