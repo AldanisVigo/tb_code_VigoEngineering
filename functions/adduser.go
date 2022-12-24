@@ -14,29 +14,29 @@ import (
 
 //easyjson:json
 type User struct {
-	UUID string
-	name string
+	UUID  string
+	name  string
 	lname string
-	age int32
+	age   int32
 }
 
 //export adduser
 func adduser(e event.Event) uint32 {
 	//Get the http object from the event
-  	h, err := e.HTTP()
+	h, err := e.HTTP()
 	if err != nil {
-		fmt.Println(fmt.Errorf("Encountered error %s",err))
+		fmt.Println(fmt.Errorf("Encountered error %s", err))
 		return 1
-	} 
+	}
 
 	//Call the addTheUser and pass the event.HttpEvent
 	err = addTheUser(h)
-	if err != nil{ //If we encounter an error
+	if err != nil { //If we encounter an error
 		//Set the header's content-type to json
-		h.Headers().Set("Content-Type","application/json")
-		
+		h.Headers().Set("Content-Type", "application/json")
+
 		//Send a response to the user
-		h.Write([]byte(fmt.Sprintf("{ \"error\" : \"Add user failed with %s\" }",err)))
+		h.Write([]byte(fmt.Sprintf("{ \"error\" : \"Add user failed with %s\" }", err)))
 		return 1
 	}
 
@@ -45,7 +45,7 @@ func adduser(e event.Event) uint32 {
 }
 
 /*
-	Add a new user to the testdb
+Add a new user to the testdb
 */
 func addTheUser(h event.HttpEvent) error {
 	// //Get a reference to the database
@@ -78,20 +78,20 @@ func addTheUser(h event.HttpEvent) error {
 
 	//Save the user JSON to the the database
 	//Ignoring errors from db.Put, h.Write, and UnmarshallJSON
-	err = db.Put(incomingUser.UUID,bodyData)
+	err = db.Put(incomingUser.UUID, bodyData)
 	if err != nil {
 		return err
 	}
-	
+
 	//Close the db
 	err = db.Close()
 	if err != nil {
 		return err
 	}
-	
+
 	//Return a response to the caller
 	w, err := h.Write([]byte("{ UUID : " + incomingUser.UUID + ", ADDED: true}"))
-	if err != nil{
+	if err != nil {
 		return err
 	}
 
@@ -99,6 +99,5 @@ func addTheUser(h event.HttpEvent) error {
 	fmt.Println(w)
 
 	//Execution successful, return nil for error
-  	return nil
+	return nil
 }
-

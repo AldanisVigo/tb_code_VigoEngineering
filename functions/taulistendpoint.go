@@ -251,8 +251,8 @@ func getAds(h event.HttpEvent) error {
 		}
 	} else { // Otherwise
 		// Create an empty ads object
-		adsObj := &AdsRequest{
-			Ads: &[]Ad{},
+		adsObj := &Ads{
+			Ads: []Ad{},
 		}
 
 		// Deserialize the empty ads object into json
@@ -268,7 +268,7 @@ func getAds(h event.HttpEvent) error {
 		}
 
 		// Write the ads json back to the client
-		_, err := h.Write(adsJson)
+		_, err = h.Write(adsJson)
 		if err != nil {
 			return err
 		}
